@@ -1,20 +1,13 @@
+
 {
-  "name": "6D THEMES",
-  "short_name": "6D Themes",
-  "description": "Free 6D Mobile Themes PWA",
+  "name": "AA 3D MAGIC GAME",
+  "short_name": "AA MAGIC",
+  "description": "Free 3D Fun Games",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080d20",
-  "theme_color": "#090d20",
-  "lang": "gu",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ]
+  "background_color": "#17134b",
+  "theme_color": "#17134b",
+  "lang": "gu"
 }
