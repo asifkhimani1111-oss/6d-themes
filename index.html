@@ -4,194 +4,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#17134b">
+<meta name="theme-color" content="#24105b">
 <title>AA 3D MAGIC GAME</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;color:white;background:linear-gradient(145deg,#17134b,#39217b,#087c9b);min-height:100vh}
-header{text-align:center;padding:24px 12px 15px}
-h1{font-size:clamp(25px,7vw,38px);margin:5px;text-shadow:0 4px 12px #0008}
-header p{color:#e0d9ff;margin:8px}
-.score{display:inline-block;background:#ffcf36;color:#39235b;padding:9px 18px;border-radius:25px;font-weight:bold;margin-top:8px}
-main{max-width:850px;margin:auto;padding:12px}
-.games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.game{border:2px solid #ffffff55;border-radius:22px;padding:17px 8px;text-align:center;background:linear-gradient(145deg,#ffffff28,#ffffff0b);box-shadow:0 8px 18px #0003;cursor:pointer;color:white;min-height:145px}
-.game:active{transform:scale(.96)}
-.emoji{font-size:48px;display:block;margin-bottom:9px}
-.game b{font-size:17px}
-.game small{display:block;color:#e6e1ff;margin-top:6px}
-.panel{display:none;text-align:center;background:#ffffff16;border:1px solid #ffffff55;border-radius:22px;padding:20px;margin-top:16px;min-height:300px}
-.panel.active{display:block}
-.panel h2{margin-top:0}
-.big{font-size:75px;margin:18px}
-.action{border:0;border-radius:30px;background:#ffcf36;color:#34215a;font-size:17px;font-weight:bold;padding:13px 22px;margin:7px;cursor:pointer}
-.back{background:#fff;color:#34215a}
-.playarea{min-height:150px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
-.bubble{font-size:43px;background:#68dfff;border:3px solid white;border-radius:50%;width:75px;height:75px;cursor:pointer}
-.fruit{font-size:54px;border:0;background:transparent;cursor:pointer}
-.slime{font-size:85px;display:inline-block;cursor:pointer;user-select:none;transition:transform .15s}
-.slime:active{transform:scale(1.35,.75)}
-.fish{font-size:55px}
-.track{height:210px;background:repeating-linear-gradient(0deg,#333 0 35px,#444 35px 70px);border:5px solid white;border-radius:18px;position:relative;overflow:hidden;max-width:300px;margin:auto}
-.car{font-size:38px;position:absolute;bottom:8px;left:45%;transition:left .12s}
-.obstacle{font-size:32px;position:absolute;top:-40px;left:48%;animation:fall 2s linear infinite}
-@keyframes fall{to{top:230px}}
-.pet{font-size:85px}
-footer{text-align:center;color:#ddd2ff;padding:25px 10px;font-size:13px}
-@media(min-width:600px){.games{grid-template-columns:repeat(3,1fr)}}
+body{margin:0;font-family:Arial,sans-serif;color:white;background:linear-gradient(145deg,#170d45,#342078,#075b80);min-height:100vh}
+header{text-align:center;padding:22px 12px 12px}
+h1{margin:5px 0;font-size:30px;text-shadow:0 3px 12px #00d9ff}
+header p{margin:8px;color:#e4dcff}
+.score{display:inline-block;background:#ffcf35;color:#28134c;padding:10px 20px;border-radius:30px;font-weight:bold}
+main{max-width:900px;margin:auto;padding:12px}
+.games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{border:2px solid #ffffff40;border-radius:20px;padding:18px 8px;text-align:center;background:linear-gradient(145deg,#ffffff25,#ffffff0b);box-shadow:0 8px 20px #09032666;cursor:pointer;min-height:130px}
+.tile:active,button:active{transform:scale(.96)}
+.tile .emoji{font-size:42px;display:block}
+.tile b{display:block;margin-top:9px;font-size:17px}
+#game{display:none;margin-top:18px;background:#ffffff18;border:1px solid #ffffff40;border-radius:22px;padding:16px;text-align:center}
+#game h2{margin:4px}
+#gameArea{position:relative;min-height:300px;margin:14px 0;border-radius:18px;overflow:hidden;background:linear-gradient(#a4e9ff,#e9faff);color:#222}
+button{border:0;border-radius:25px;padding:12px 18px;margin:5px;background:#ffcf35;color:#25134e;font-weight:bold;font-size:15px;cursor:pointer}
+.back{background:#fff;color:#26134f}
+.big{font-size:48px}
+.small{font-size:13px;color:#eee}
+.bubbles{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;padding:22px}
+.bubble{width:65px;height:65px;border-radius:50%;font-size:30px;background:radial-gradient(circle at 30% 25%,white,#5bdcff 45%,#2773df);box-shadow:inset -5px -7px 12px #174caa66}
+.slime{font-size:100px;display:inline-block;touch-action:manipulation;transition:transform .15s;user-select:none}
+.fruits{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding:30px}
+.fruit{font-size:42px;background:#fff;border-radius:18px;padding:10px}
+.fish{position:absolute;font-size:42px;animation:swim 4s infinite alternate ease-in-out}
+@keyframes swim{from{transform:translateX(-25px)}to{transform:translateX(180px)}}
+.water{background:linear-gradient(#32c8ee,#0871b8)!important}
+.track{position:relative;width:min(100%,300px);height:300px;margin:auto;background:repeating-linear-gradient(90deg,#444 0 96px,#fff 96px 101px,#444 101px 196px,#fff 196px 201px,#444 201px 300px);overflow:hidden;border-left:5px solid white;border-right:5px solid white}
+.car{position:absolute;bottom:12px;left:calc(50% - 19px);font-size:38px;z-index:3;transition:left .12s}
+.obstacle{position:absolute;top:-45px;font-size:34px;z-index:2}
+.pet{font-size:100px;padding:30px}
+.controls{display:flex;justify-content:center;gap:15px}
+#message{font-weight:bold;min-height:24px;color:#fff}
+@media(min-width:650px){.games{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 <header>
-<h1>🌟 AA 3D MAGIC GAME 🌟</h1>
-<p>Touch • Play • Enjoy</p>
-<div class="score">⭐ મારા પોઇન્ટ: <span id="score">0</span></div>
+<h1>✨ AA 3D MAGIC GAME ✨</h1>
+<p>રમો, મજા કરો અને પોઇન્ટ મેળવો!</p>
+<div class="score">⭐ કુલ સ્કોર: <span id="total">0</span></div>
 </header>
-
 <main>
-<div class="games" id="home">
-<div class="game" onclick="openGame('bubble')"><span class="emoji">🫧</span><b>Bubble Pop</b><small>બબલ ફોડો</small></div>
-<div class="game" onclick="openGame('slime')"><span class="emoji">🟣</span><b>Magic Slime</b><small>સ્લાઇમ દબાવો</small></div>
-<div class="game" onclick="openGame('fruit')"><span class="emoji">🍉</span><b>Fruit Fun</b><small>ફળની મજા</small></div>
-<div class="game" onclick="openGame('fish')"><span class="emoji">🐠</span><b>Fish World</b><small>માછલીઓને ખવડાવો</small></div>
-<div class="game" onclick="openGame('race')"><span class="emoji">🏎️</span><b>Mini Racing</b><small>કાર ચલાવો</small></div>
-<div class="game" onclick="openGame('pet')"><span class="emoji">🐶</span><b>Pet World</b><small>પાળતુ પ્રાણીઓ</small></div>
+<div class="games" id="menu">
+<div class="tile" onclick="openGame('bubble')"><span class="emoji">🫧</span><b>Bubble Pop</b></div>
+<div class="tile" onclick="openGame('slime')"><span class="emoji">🟢</span><b>Magic Slime</b></div>
+<div class="tile" onclick="openGame('fruit')"><span class="emoji">🍎</span><b>Fruit Fun</b></div>
+<div class="tile" onclick="openGame('fish')"><span class="emoji">🐠</span><b>Fish World</b></div>
+<div class="tile" onclick="openGame('race')"><span class="emoji">🏎️</span><b>Mini Racing</b></div>
+<div class="tile" onclick="openGame('pet')"><span class="emoji">🐶</span><b>Pet World</b></div>
 </div>
 
-<section class="panel" id="bubble">
-<h2>🫧 Bubble Pop</h2><p>બબલને ટચ કરીને ફોડો!</p>
-<div class="playarea" id="bubbles"></div>
-<button class="action" onclick="makeBubbles()">નવા બબલ</button>
-<button class="action back" onclick="goHome()">🏠 Home</button>
-</section>
-
-<section class="panel" id="slime">
-<h2>🟣 Magic Slime</h2><p>સ્લાઇમને દબાવો અને મજા કરો!</p>
-<div class="playarea"><div class="slime" id="slimeBall" onpointerdown="slimePress()">🟣</div></div>
-<p id="slimeText">સ્લાઇમને ટચ કરો!</p>
-<button class="action back" onclick="goHome()">🏠 Home</button>
-</section>
-
-<section class="panel" id="fruit">
-<h2>🍉 Fruit Fun</h2><p>ફળને ટચ કરો!</p>
-<div class="playarea" id="fruits"></div>
-<button class="action" onclick="makeFruits()">નવા ફળ</button>
-<button class="action back" onclick="goHome()">🏠 Home</button>
-</section>
-
-<section class="panel" id="fish">
-<h2>🐠 Fish World</h2><p>માછલીને ખોરાક આપો!</p>
-<div class="playarea"><span class="fish">🐠</span><span class="fish">🐟</span><span class="fish">🐡</span></div>
-<button class="action" onclick="feedFish()">🐟 ખોરાક આપો</button>
-<p id="fishText">માછલીઓ ભૂખી છે!</p>
-<button class="action back" onclick="goHome()">🏠 Home</button>
-</section>
-
-<section class="panel" id="race">
-<h2>🏎️ Mini Racing</h2><p>ડાબે અને જમણે કાર ચલાવો!</p>
-<div class="track" id="track"><div class="obstacle">🚧</div><div class="car" id="car">🏎️</div></div>
-<div>
-<button class="action" onclick="moveCar(-1)">⬅️</button>
-<button class="action" onclick="moveCar(1)">➡️</button>
-</div>
-<p id="raceText">રેસ શરૂ કરો!</p>
-<button class="action" onclick="startRace()">🏁 Start Race</button>
-<button class="action back" onclick="goHome()">🏠 Home</button>
-</section>
-
-<section class="panel" id="pet">
-<h2>🐶 Pet World</h2><p>તમારા પ્રાણીને ખવડાવો અને રમો!</p>
-<div class="playarea"><div class="pet" id="petAnimal">🐶</div></div>
-<button class="action" onclick="feedPet()">🍖 ખવડાવો</button>
-<button class="action" onclick="playPet()">🎾 રમો</button>
-<p id="petText">તમારો મિત્ર તમારી રાહ જુએ છે!</p>
-<button class="action back" onclick="goHome()">🏠 Home</button>
+<section id="game">
+<h2 id="gameTitle"></h2>
+<p id="gameInfo">રમવાનું શરૂ કરો!</p>
+<div id="gameArea"></div>
+<div id="message"></div>
+<div id="gameButtons"></div>
+<button class="back" onclick="backHome()">⬅ બધી ગેમ્સ</button>
 </section>
 </main>
 
-<footer>AA 3D MAGIC GAME · Free Fun For Everyone</footer>
-
 <script>
-let points=0;
-function addPoints(n=1){
-points+=n;
-document.getElementById("score").textContent=points;
-try{localStorage.setItem("aaMagicScore",points)}catch(e){}
+let total=Number(localStorage.getItem("aaGameScore")||0);
+let points=0, timer=null, raceTimer=null, running=false, lane=1, obstacles=[];
+const $=id=>document.getElementById(id);
+function updateScore(){
+ $("total").textContent=total;
+ localStorage.setItem("aaGameScore",total);
 }
-try{
-points=Number(localStorage.getItem("aaMagicScore"))||0;
-document.getElementById("score").textContent=points;
-}catch(e){}
+updateScore();
 
-function openGame(id){
-document.getElementById("home").style.display="none";
-document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-document.getElementById(id).classList.add("active");
-if(id==="bubble")makeBubbles();
-if(id==="fruit")makeFruits();
+function addPoints(n){
+ points+=n; total+=n; updateScore();
+ $("gameInfo").textContent="આ ગેમના પોઇન્ટ: "+points;
 }
-function goHome(){
-document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-document.getElementById("home").style.display="grid";
+function stopTimers(){
+ clearInterval(timer); clearInterval(raceTimer);
+ timer=null;raceTimer=null;running=false;
+}
+function openGame(name){
+ stopTimers();points=0;
+ $("menu").style.display="none";
+ $("game").style.display="block";
+ $("message").textContent="";
+ $("gameButtons").innerHTML="";
+ $("gameInfo").textContent="આ ગેમના પોઇન્ટ: 0";
+ const titles={bubble:"🫧 Bubble Pop",slime:"🟢 Magic Slime",fruit:"🍎 Fruit Fun",fish:"🐠 Fish World",race:"🏎️ Mini Racing",pet:"🐶 Pet World"};
+ $("gameTitle").textContent=titles[name];
+ if(name==="bubble") bubbleGame();
+ if(name==="slime") slimeGame();
+ if(name==="fruit") fruitGame();
+ if(name==="fish") fishGame();
+ if(name==="race") raceGame();
+ if(name==="pet") petGame();
+}
+function backHome(){
+ stopTimers();
+ $("game").style.display="none";
+ $("menu").style.display="grid";
 }
 
-function makeBubbles(){
-let area=document.getElementById("bubbles");
-area.innerHTML="";
-for(let i=0;i<8;i++){
-let b=document.createElement("button");
-b.className="bubble";
-b.textContent="🫧";
-b.onclick=()=>{b.textContent="💥";b.disabled=true;addPoints();};
-area.appendChild(b);
+function bubbleGame(){
+ $("gameArea").innerHTML='<div class="bubbles" id="bubbleList"></div>';
+ $("gameButtons").innerHTML='<button onclick="newBubbles()">નવા બબલ્સ</button>';
+ newBubbles();
 }
+function newBubbles(){
+ const box=$("bubbleList");if(!box)return;
+ box.innerHTML="";
+ for(let i=0;i<12;i++){
+  let b=document.createElement("button");
+  b.className="bubble";b.textContent="🫧";
+  b.onclick=()=>{if(b.dataset.done)return;b.dataset.done="1";b.textContent="💥";addPoints(1)};
+  box.appendChild(b);
+ }
 }
-function slimePress(){
-addPoints();
-document.getElementById("slimeText").textContent="વાહ! સ્લાઇમ મજાથી દબાઈ ગયું! ✨";
+
+function slimeGame(){
+ $("gameArea").innerHTML='<div style="padding:50px"><div class="slime" id="slime">🟢</div><p>સ્લાઇમને વારંવાર ટચ કરો!</p></div>';
+ const s=$("slime");
+ s.onclick=()=>{s.style.transform="scale(1.35,.75) rotate(8deg)";setTimeout(()=>s.style.transform="scale(1) rotate(0)",180);addPoints(1)};
 }
-const fruitList=["🍎","🍊","🍉","🍓","🍍","🍇","🍌","🥝"];
-function makeFruits(){
-let area=document.getElementById("fruits");
-area.innerHTML="";
-fruitList.forEach(f=>{
-let b=document.createElement("button");
-b.className="fruit";b.textContent=f;
-b.onclick=()=>{b.textContent="✨";b.disabled=true;addPoints();};
-area.appendChild(b);
-});
+
+function fruitGame(){
+ const fruits=["🍎","🍌","🍊","🍉","🍓","🍍","🍇","🥝","🍐","🍒"];
+ $("gameArea").innerHTML='<div class="fruits" id="fruitList"></div>';
+ const box=$("fruitList");
+ fruits.forEach(f=>{
+  let b=document.createElement("button");b.className="fruit";b.textContent=f;
+  b.onclick=()=>{if(b.dataset.done)return;b.dataset.done="1";b.textContent="✨";addPoints(1)};
+  box.appendChild(b);
+ });
+}
+
+function fishGame(){
+ $("gameArea").className="water";
+ $("gameArea").innerHTML='<div class="fish" style="top:35px;left:10px">🐠</div><div class="fish" style="top:125px;left:90px;animation-delay:-2s">🐟</div><div class="fish" style="top:220px;left:35px;animation-delay:-1s">🐡</div><div style="padding-top:265px;color:white">માછલીઓને ખોરાક આપો!</div>';
+ $("gameButtons").innerHTML='<button onclick="feedFish()">🐟 ખોરાક આપો</button>';
 }
 function feedFish(){
-addPoints();
-document.getElementById("fishText").textContent="યમ્મી! માછલીઓ ખુશ થઈ ગઈ! 🫧";
+ addPoints(2);
+ $("message").textContent="યે! માછલીઓ ખુશ થઈ ગઈ! 🫧";
 }
-let carPosition=1;
-function moveCar(direction){
-carPosition=Math.max(0,Math.min(2,carPosition+direction));
-document.getElementById("car").style.left=(carPosition*34+12)+"%";
+
+function raceGame(){
+ lane=1;obstacles=[];running=true;
+ $("gameArea").innerHTML='<div class="track" id="track"><div class="car" id="car">🏎️</div></div>';
+ $("gameButtons").innerHTML='<div class="controls"><button onclick="moveCar(-1)">⬅ ડાબે</button><button onclick="moveCar(1)">જમણે ➡</button></div><button onclick="startRace()">🔄 ફરીથી રેસ</button>';
+ startRace();
 }
-let raceTimer=null;
+function moveCar(dir){
+ if(!running)return;
+ lane=Math.max(0,Math.min(2,lane+dir));
+ const car=$("car");if(car)car.style.left=(lane*33.33+16.66)+"%";
+}
 function startRace(){
-if(raceTimer)clearInterval(raceTimer);
-let seconds=0;
-document.getElementById("raceText").textContent="રેસ ચાલુ છે! કાર ચલાવો!";
-raceTimer=setInterval(()=>{
-seconds++;
-if(seconds>=10){
-clearInterval(raceTimer);raceTimer=null;
-document.getElementById("raceText").textContent="🏁 રેસ પૂરી! શાબાશ!";
-addPoints(5);
+ stopTimers();lane=1;obstacles=[];running=true;
+ const track=$("track");if(!track)return;
+ track.querySelectorAll(".obstacle").forEach(x=>x.remove());
+ $("car").style.left="50%";
+ $("message").textContent="રેસ શરૂ! અવરોધોથી બચો!";
+ let elapsed=0,spawn=0;
+ raceTimer=setInterval(()=>{
+  if(!running)return;
+  elapsed+=50;spawn+=50;
+  if(spawn>=850){
+   spawn=0;
+   const obs=document.createElement("div");
+   obs.className="obstacle";obs.textContent=["🚧","🪨","🚙"][Math.floor(Math.random()*3)];
+   obs.dataset.lane=Math.floor(Math.random()*3);
+   obs.style.left=(Number(obs.dataset.lane)*33.33+9)+"%";
+   track.appendChild(obs);obstacles.push(obs);
+  }
+  obstacles=obstacles.filter(o=>{
+   let y=(Number(o.dataset.y||0)+4);
+   o.dataset.y=y;o.style.top=y+"px";
+   if(y>245 && y<295 && Number(o.dataset.lane)===lane){endRace(false);return false}
+   if(y>310){o.remove();addPoints(1);return false}
+   return true;
+  });
+  if(elapsed>=20000)endRace(true);
+ },50);
 }
-},1000);
+function endRace(win){
+ if(!running)return;
+ running=false;clearInterval(raceTimer);
+ $("message").textContent=win?"🏆 શાનદાર! રેસ પૂરી!":"અરે! કાર અવરોધને અડી ગઈ. ફરી પ્રયાસ કરો!";
+ if(win)addPoints(10);
 }
-function feedPet(){
-addPoints();
-document.getElementById("petText").textContent="તમારા મિત્રને ખાવાનું ખૂબ ગમ્યું! ❤️";
+
+function petGame(){
+ $("gameArea").innerHTML='<div class="pet" id="pet">🐶</div><p id="petText">તમારું પાળતું પ્રાણી તમારી રાહ જુએ છે!</p>';
+ $("gameButtons").innerHTML='<button onclick="petAction(\'feed\')">🍖 ખવડાવો</button><button onclick="petAction(\'play\')">🎾 રમો</button><button onclick="petAction(\'love\')">❤️ વહાલ કરો</button>';
 }
-function playPet(){
-addPoints();
-document.getElementById("petAnimal").textContent="🐕";
-document.getElementById("petText").textContent="વાહ! તમારા મિત્રને રમવાની મજા આવી! 🎾";
+function petAction(action){
+ const p=$("pet"),t=$("petText");
+ if(action==="feed"){p.textContent="😋";t.textContent="વાહ! પેટ ભરાઈ ગયું!";}
+ if(action==="play"){p.textContent="🐕";t.textContent="મજા આવી! ચાલો ફરી રમીએ!";}
+ if(action==="love"){p.textContent="🥰";t.textContent="તમારું પાળતું પ્રાણી ખુશ છે!";}
+ addPoints(2);
 }
 </script>
 </body>
