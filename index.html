@@ -4,398 +4,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#090d20">
-<title>6D THEMES</title>
-<link rel="manifest" href="manifest.json">
-
+<meta name="theme-color" content="#17134b">
+<title>AA 3D MAGIC GAME</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;background:#080d20;color:white;
- font-family:Arial,sans-serif;
- transition:.4s;
-}
-header{
- padding:22px 15px;text-align:center;
- background:#101a36;
- border-bottom:1px solid #ffffff22;
-}
-.logo{
- font-size:30px;font-weight:900;letter-spacing:4px;
- background:linear-gradient(90deg,#00eaff,#d56bff,#ff54b9);
- color:transparent;background-clip:text;
-}
-header p{font-size:12px;color:#b8c6ed}
-.container{max-width:650px;margin:auto;padding:15px}
-.card{
- background:#ffffff0d;border:1px solid #ffffff20;
- border-radius:20px;padding:16px;margin-bottom:17px;
-}
-h3{margin-top:0}
-.preview{
- min-height:440px;border-radius:27px;padding:20px;
- position:relative;overflow:hidden;
- background:linear-gradient(145deg,#102b60,#59277d,#090e25);
- box-shadow:0 15px 35px #0008,inset 0 0 30px #ffffff20;
- transition:.5s;
-}
-.preview.pink{
- background:radial-gradient(circle at top,#ff8ac9,#64266f 55%,#180d31);
-}
-.preview.gold{
- background:linear-gradient(145deg,#080808,#65501c,#17120a);
- border:2px solid #c5a44c;
-}
-.preview.nature{
- background:linear-gradient(145deg,#073e32,#16a17c,#09251f);
-}
-.preview.fire{
- background:radial-gradient(circle at bottom,#ffb02e,#b32924,#230d22);
-}
-.preview.rainbow{
- background:linear-gradient(135deg,#ff3cac,#784ba0,#2b86c5,#20bf9f);
-}
-.preview.silver{
- background:linear-gradient(145deg,#dce5ef,#71839d,#18233c);
- color:#111;
-}
-.preview h2{text-align:center;font-size:24px;margin-top:8px}
-.clock{text-align:center;font-size:48px;font-weight:bold;margin-top:30px}
-.date{text-align:center;font-size:13px;margin-bottom:40px}
-.appgrid{
- display:grid;grid-template-columns:repeat(4,1fr);
- gap:23px 8px;text-align:center;
-}
-.app{min-width:0}
-.appicon{
- width:58px;height:58px;margin:auto;
- display:grid;place-items:center;
- font-size:27px;border-radius:19px;
- background:linear-gradient(145deg,var(--accent),#171d40);
- box-shadow:5px 7px 12px #0008,inset 2px 2px 6px #ffffff66;
- border:1px solid #ffffff55;
-}
-.appname{font-size:11px;margin-top:7px}
-.themes{
- display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
-}
-.theme{
- padding:20px 8px;border-radius:17px;
- border:2px solid #ffffff33;
- text-align:center;font-weight:bold;
- cursor:pointer;min-height:95px;
- transition:.2s;
-}
-.theme:active{transform:scale(.95)}
-.theme small{display:block;margin-top:8px;font-weight:normal}
-button{
- border:0;border-radius:13px;padding:13px;
- background:var(--accent);color:#071020;
- font-weight:bold;width:100%;margin-top:10px;
- cursor:pointer;
-}
-input[type=color]{
- width:100%;height:45px;border:0;
- background:transparent;
-}
-input[type=file]{width:100%;margin:12px 0}
-.appsetting{
- display:flex;align-items:center;
- justify-content:space-between;
- gap:10px;padding:12px 0;
- border-bottom:1px solid #ffffff20;
-}
-.appsetting:last-child{border:0}
-.switch{
- width:48px;height:27px;position:relative;
- flex-shrink:0;
-}
-.switch input{display:none}
-.knob{
- position:absolute;inset:0;background:#555;
- border-radius:30px;cursor:pointer;transition:.3s;
-}
-.knob:before{
- content:"";position:absolute;width:19px;height:19px;
- left:4px;top:4px;background:white;border-radius:50%;
- transition:.3s;
-}
-.switch input:checked+.knob{background:#12c98a}
-.switch input:checked+.knob:before{transform:translateX(21px)}
-.small{font-size:12px;color:#b9c6e5;line-height:1.6}
-footer{text-align:center;padding:22px;color:#9eafd4;font-size:12px}
+body{margin:0;font-family:Arial,sans-serif;color:white;background:linear-gradient(145deg,#17134b,#39217b,#087c9b);min-height:100vh}
+header{text-align:center;padding:24px 12px 15px}
+h1{font-size:clamp(25px,7vw,38px);margin:5px;text-shadow:0 4px 12px #0008}
+header p{color:#e0d9ff;margin:8px}
+.score{display:inline-block;background:#ffcf36;color:#39235b;padding:9px 18px;border-radius:25px;font-weight:bold;margin-top:8px}
+main{max-width:850px;margin:auto;padding:12px}
+.games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.game{border:2px solid #ffffff55;border-radius:22px;padding:17px 8px;text-align:center;background:linear-gradient(145deg,#ffffff28,#ffffff0b);box-shadow:0 8px 18px #0003;cursor:pointer;color:white;min-height:145px}
+.game:active{transform:scale(.96)}
+.emoji{font-size:48px;display:block;margin-bottom:9px}
+.game b{font-size:17px}
+.game small{display:block;color:#e6e1ff;margin-top:6px}
+.panel{display:none;text-align:center;background:#ffffff16;border:1px solid #ffffff55;border-radius:22px;padding:20px;margin-top:16px;min-height:300px}
+.panel.active{display:block}
+.panel h2{margin-top:0}
+.big{font-size:75px;margin:18px}
+.action{border:0;border-radius:30px;background:#ffcf36;color:#34215a;font-size:17px;font-weight:bold;padding:13px 22px;margin:7px;cursor:pointer}
+.back{background:#fff;color:#34215a}
+.playarea{min-height:150px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
+.bubble{font-size:43px;background:#68dfff;border:3px solid white;border-radius:50%;width:75px;height:75px;cursor:pointer}
+.fruit{font-size:54px;border:0;background:transparent;cursor:pointer}
+.slime{font-size:85px;display:inline-block;cursor:pointer;user-select:none;transition:transform .15s}
+.slime:active{transform:scale(1.35,.75)}
+.fish{font-size:55px}
+.track{height:210px;background:repeating-linear-gradient(0deg,#333 0 35px,#444 35px 70px);border:5px solid white;border-radius:18px;position:relative;overflow:hidden;max-width:300px;margin:auto}
+.car{font-size:38px;position:absolute;bottom:8px;left:45%;transition:left .12s}
+.obstacle{font-size:32px;position:absolute;top:-40px;left:48%;animation:fall 2s linear infinite}
+@keyframes fall{to{top:230px}}
+.pet{font-size:85px}
+footer{text-align:center;color:#ddd2ff;padding:25px 10px;font-size:13px}
+@media(min-width:600px){.games{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
-
-<body style="--accent:#00eaff">
-
+<body>
 <header>
- <div class="logo">6D THEMES</div>
- <p>YOUR PHONE • YOUR STYLE • YOUR WORLD</p>
+<h1>🌟 AA 3D MAGIC GAME 🌟</h1>
+<p>Touch • Play • Enjoy</p>
+<div class="score">⭐ મારા પોઇન્ટ: <span id="score">0</span></div>
 </header>
 
-<main class="container">
+<main>
+<div class="games" id="home">
+<div class="game" onclick="openGame('bubble')"><span class="emoji">🫧</span><b>Bubble Pop</b><small>બબલ ફોડો</small></div>
+<div class="game" onclick="openGame('slime')"><span class="emoji">🟣</span><b>Magic Slime</b><small>સ્લાઇમ દબાવો</small></div>
+<div class="game" onclick="openGame('fruit')"><span class="emoji">🍉</span><b>Fruit Fun</b><small>ફળની મજા</small></div>
+<div class="game" onclick="openGame('fish')"><span class="emoji">🐠</span><b>Fish World</b><small>માછલીઓને ખવડાવો</small></div>
+<div class="game" onclick="openGame('race')"><span class="emoji">🏎️</span><b>Mini Racing</b><small>કાર ચલાવો</small></div>
+<div class="game" onclick="openGame('pet')"><span class="emoji">🐶</span><b>Pet World</b><small>પાળતુ પ્રાણીઓ</small></div>
+</div>
 
-<section class="card">
- <h3>📱 તમારો મોબાઇલ Preview</h3>
- <div class="preview" id="preview">
-  <h2>✨ 6D WORLD</h2>
-  <div class="clock" id="clock">12:00</div>
-  <div class="date" id="date"></div>
-  <div class="appgrid" id="appgrid"></div>
- </div>
- <p class="small">આપણી એપની અંદરનું Home Screen Preview.</p>
+<section class="panel" id="bubble">
+<h2>🫧 Bubble Pop</h2><p>બબલને ટચ કરીને ફોડો!</p>
+<div class="playarea" id="bubbles"></div>
+<button class="action" onclick="makeBubbles()">નવા બબલ</button>
+<button class="action back" onclick="goHome()">🏠 Home</button>
 </section>
 
-<section class="card">
- <h3>🎨 અલગ અલગ 3D Themes</h3>
- <div class="themes">
-  <div class="theme" style="background:linear-gradient(135deg,#00eaff,#17265e)" onclick="applyTheme('blue')">
-   💎 BLUE CYBER
-   <small>Futuristic Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#ff3cac,#784ba0)" onclick="applyTheme('pink')">
-   💗 PINK GLASS
-   <small>Pink Glow Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#080808,#aa8730)" onclick="applyTheme('gold')">
-   👑 BLACK GOLD
-   <small>Luxury Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#07513d,#42e695)" onclick="applyTheme('nature')">
-   🌿 NATURE
-   <small>Green Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#ffb347,#ff416c)" onclick="applyTheme('fire')">
-   🔥 FIRE
-   <small>Fire Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#ff3cac,#20bf9f)" onclick="applyTheme('rainbow')">
-   🌈 RAINBOW
-   <small>Colorful Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#dce5ef,#71839d);color:#111" onclick="applyTheme('silver')">
-   ⚪ SILVER
-   <small>Silver Design</small>
-  </div>
-  <div class="theme" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)" onclick="applyTheme('purple')">
-   🔮 PURPLE
-   <small>Purple Design</small>
-  </div>
- </div>
+<section class="panel" id="slime">
+<h2>🟣 Magic Slime</h2><p>સ્લાઇમને દબાવો અને મજા કરો!</p>
+<div class="playarea"><div class="slime" id="slimeBall" onpointerdown="slimePress()">🟣</div></div>
+<p id="slimeText">સ્લાઇમને ટચ કરો!</p>
+<button class="action back" onclick="goHome()">🏠 Home</button>
 </section>
 
-<section class="card">
- <h3>📲 એપ ON / OFF કરો</h3>
- <p class="small">જે એપ ના આઇકોન જોવા ન હોય તેને OFF કરો.</p>
- <div id="settings"></div>
+<section class="panel" id="fruit">
+<h2>🍉 Fruit Fun</h2><p>ફળને ટચ કરો!</p>
+<div class="playarea" id="fruits"></div>
+<button class="action" onclick="makeFruits()">નવા ફળ</button>
+<button class="action back" onclick="goHome()">🏠 Home</button>
 </section>
 
-<section class="card">
- <h3>🌈 પોતાનો Icon Colour</h3>
- <input type="color" id="colorPicker" value="#00eaff">
- <p class="small">તમને ગમતો કલર પસંદ કરો.</p>
+<section class="panel" id="fish">
+<h2>🐠 Fish World</h2><p>માછલીને ખોરાક આપો!</p>
+<div class="playarea"><span class="fish">🐠</span><span class="fish">🐟</span><span class="fish">🐡</span></div>
+<button class="action" onclick="feedFish()">🐟 ખોરાક આપો</button>
+<p id="fishText">માછલીઓ ભૂખી છે!</p>
+<button class="action back" onclick="goHome()">🏠 Home</button>
 </section>
 
-<section class="card">
- <h3>🖼️ પોતાનું Wallpaper</h3>
- <input type="file" id="wallpaper" accept="image/*">
- <button onclick="setWallpaper()">Wallpaper લગાવો</button>
- <button onclick="clearWallpaper()" style="background:#fff;color:#111">Wallpaper દૂર કરો</button>
+<section class="panel" id="race">
+<h2>🏎️ Mini Racing</h2><p>ડાબે અને જમણે કાર ચલાવો!</p>
+<div class="track" id="track"><div class="obstacle">🚧</div><div class="car" id="car">🏎️</div></div>
+<div>
+<button class="action" onclick="moveCar(-1)">⬅️</button>
+<button class="action" onclick="moveCar(1)">➡️</button>
+</div>
+<p id="raceText">રેસ શરૂ કરો!</p>
+<button class="action" onclick="startRace()">🏁 Start Race</button>
+<button class="action back" onclick="goHome()">🏠 Home</button>
 </section>
 
-<section class="card">
- <h3>✨ 3D Screen Effect</h3>
- <button onclick="tilt(true)">3D Effect ON</button>
- <button onclick="tilt(false)" style="background:#fff;color:#111">3D Effect OFF</button>
+<section class="panel" id="pet">
+<h2>🐶 Pet World</h2><p>તમારા પ્રાણીને ખવડાવો અને રમો!</p>
+<div class="playarea"><div class="pet" id="petAnimal">🐶</div></div>
+<button class="action" onclick="feedPet()">🍖 ખવડાવો</button>
+<button class="action" onclick="playPet()">🎾 રમો</button>
+<p id="petText">તમારો મિત્ર તમારી રાહ જુએ છે!</p>
+<button class="action back" onclick="goHome()">🏠 Home</button>
 </section>
-
-<section class="card">
- <h3>📥 Install 6D THEMES</h3>
- <button onclick="installApp()">Install App</button>
- <p class="small">Chrome માં Add to Home Screen વિકલ્પ પણ વાપરી શકો છો.</p>
-</section>
-
 </main>
 
-<footer>6D THEMES • Made Free ❤️</footer>
+<footer>AA 3D MAGIC GAME · Free Fun For Everyone</footer>
 
 <script>
-const appList=[
- {id:'phone',name:'Phone',icon:'📞'},
- {id:'whatsapp',name:'WhatsApp',icon:'💬'},
- {id:'camera',name:'Camera',icon:'📷'},
- {id:'music',name:'Music',icon:'🎵'},
- {id:'gallery',name:'Gallery',icon:'🖼️'},
- {id:'settings',name:'Settings',icon:'⚙️'},
- {id:'browser',name:'Browser',icon:'🌐'},
- {id:'maps',name:'Maps',icon:'🗺️'},
- {id:'youtube',name:'YouTube',icon:'▶️'},
- {id:'messages',name:'Messages',icon:'✉️'},
- {id:'calculator',name:'Calculator',icon:'🧮'},
- {id:'clock',name:'Clock',icon:'⏰'}
-];
+let points=0;
+function addPoints(n=1){
+points+=n;
+document.getElementById("score").textContent=points;
+try{localStorage.setItem("aaMagicScore",points)}catch(e){}
+}
+try{
+points=Number(localStorage.getItem("aaMagicScore"))||0;
+document.getElementById("score").textContent=points;
+}catch(e){}
 
-let activeApps=JSON.parse(localStorage.getItem('6d-apps')||'null')
- ||appList.map(a=>a.id);
-
-let accent=localStorage.getItem('6d-color')||'#00eaff';
-let currentTheme=localStorage.getItem('6d-theme')||'blue';
-
-function save(){
- localStorage.setItem('6d-apps',JSON.stringify(activeApps));
+function openGame(id){
+document.getElementById("home").style.display="none";
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+if(id==="bubble")makeBubbles();
+if(id==="fruit")makeFruits();
+}
+function goHome(){
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+document.getElementById("home").style.display="grid";
 }
 
-function renderApps(){
- const grid=document.getElementById('appgrid');
- grid.innerHTML='';
- appList.forEach(app=>{
-  if(!activeApps.includes(app.id))return;
-  const el=document.createElement('div');
-  el.className='app';
-  const icon=document.createElement('div');
-  icon.className='appicon';
-  icon.textContent=app.icon;
-  const name=document.createElement('div');
-  name.className='appname';
-  name.textContent=app.name;
-  el.append(icon,name);
-  grid.appendChild(el);
- });
+function makeBubbles(){
+let area=document.getElementById("bubbles");
+area.innerHTML="";
+for(let i=0;i<8;i++){
+let b=document.createElement("button");
+b.className="bubble";
+b.textContent="🫧";
+b.onclick=()=>{b.textContent="💥";b.disabled=true;addPoints();};
+area.appendChild(b);
 }
-
-function renderSettings(){
- const box=document.getElementById('settings');
- box.innerHTML='';
- appList.forEach(app=>{
-  const row=document.createElement('div');
-  row.className='appsetting';
-  const label=document.createElement('span');
-  label.textContent=app.icon+' '+app.name;
-  const wrap=document.createElement('label');
-  wrap.className='switch';
-  const input=document.createElement('input');
-  input.type='checkbox';
-  input.checked=activeApps.includes(app.id);
-  const knob=document.createElement('span');
-  knob.className='knob';
-  input.addEventListener('change',()=>{
-   if(input.checked){
-    if(!activeApps.includes(app.id))activeApps.push(app.id);
-   }else{
-    activeApps=activeApps.filter(id=>id!==app.id);
-   }
-   save();
-   renderApps();
-  });
-  wrap.append(input,knob);
-  row.append(label,wrap);
-  box.appendChild(row);
- });
 }
-
-const themeColors={
- blue:'#00eaff',
- pink:'#ff69bd',
- gold:'#d6b45b',
- nature:'#42e695',
- fire:'#ff7043',
- rainbow:'#ff4da6',
- silver:'#dce5ef',
- purple:'#bb88ff'
-};
-
-function applyTheme(name){
- currentTheme=name;
- localStorage.setItem('6d-theme',name);
- const preview=document.getElementById('preview');
- preview.className='preview';
- if(name==='pink')preview.classList.add('pink');
- if(name==='gold')preview.classList.add('gold');
- if(name==='nature')preview.classList.add('nature');
- if(name==='fire')preview.classList.add('fire');
- if(name==='rainbow')preview.classList.add('rainbow');
- if(name==='silver')preview.classList.add('silver');
- if(name==='purple'){
-  preview.style.background='linear-gradient(145deg,#241044,#a18cd1,#42175e)';
- }else{
-  preview.style.background='';
- }
- changeColor(themeColors[name]);
+function slimePress(){
+addPoints();
+document.getElementById("slimeText").textContent="વાહ! સ્લાઇમ મજાથી દબાઈ ગયું! ✨";
 }
-
-function changeColor(color){
- accent=color;
- document.body.style.setProperty('--accent',color);
- document.getElementById('colorPicker').value=color;
- localStorage.setItem('6d-color',color);
-}
-
-document.getElementById('colorPicker').addEventListener('input',e=>{
- changeColor(e.target.value);
+const fruitList=["🍎","🍊","🍉","🍓","🍍","🍇","🍌","🥝"];
+function makeFruits(){
+let area=document.getElementById("fruits");
+area.innerHTML="";
+fruitList.forEach(f=>{
+let b=document.createElement("button");
+b.className="fruit";b.textContent=f;
+b.onclick=()=>{b.textContent="✨";b.disabled=true;addPoints();};
+area.appendChild(b);
 });
-
-function setWallpaper(){
- const file=document.getElementById('wallpaper').files[0];
- if(!file)return alert('પહેલાં ફોટો પસંદ કરો.');
- if(!file.type.startsWith('image/'))return alert('ફોટો પસંદ કરો.');
- if(file.size>3*1024*1024)return alert('3 MB થી નાનો ફોટો પસંદ કરો.');
- const reader=new FileReader();
- reader.onload=e=>{
-  document.getElementById('preview').style.backgroundImage=
-  `url("${e.target.result}")`;
-  document.getElementById('preview').style.backgroundSize='cover';
-  document.getElementById('preview').style.backgroundPosition='center';
- };
- reader.readAsDataURL(file);
 }
-
-function clearWallpaper(){
- document.getElementById('wallpaper').value='';
- applyTheme(currentTheme);
+function feedFish(){
+addPoints();
+document.getElementById("fishText").textContent="યમ્મી! માછલીઓ ખુશ થઈ ગઈ! 🫧";
 }
-
-function tilt(on){
- document.getElementById('preview').style.transform=
- on?'perspective(700px) rotateY(8deg) rotateX(4deg)':'none';
+let carPosition=1;
+function moveCar(direction){
+carPosition=Math.max(0,Math.min(2,carPosition+direction));
+document.getElementById("car").style.left=(carPosition*34+12)+"%";
 }
-
-function updateClock(){
- const now=new Date();
- document.getElementById('clock').textContent=
- now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
- document.getElementById('date').textContent=
- now.toLocaleDateString('gu-IN',{weekday:'long',day:'numeric',month:'long'});
+let raceTimer=null;
+function startRace(){
+if(raceTimer)clearInterval(raceTimer);
+let seconds=0;
+document.getElementById("raceText").textContent="રેસ ચાલુ છે! કાર ચલાવો!";
+raceTimer=setInterval(()=>{
+seconds++;
+if(seconds>=10){
+clearInterval(raceTimer);raceTimer=null;
+document.getElementById("raceText").textContent="🏁 રેસ પૂરી! શાબાશ!";
+addPoints(5);
 }
-updateClock();
-setInterval(updateClock,1000);
-
-let installEvent=null;
-window.addEventListener('beforeinstallprompt',e=>{
- e.preventDefault();
- installEvent=e;
-});
-
-async function installApp(){
- if(installEvent){
-  installEvent.prompt();
-  await installEvent.userChoice;
-  installEvent=null;
- }else{
-  alert('Chrome ના ત્રણ ડોટ મેનુમાંથી Add to Home Screen પસંદ કરો.');
- }
+},1000);
 }
-
-if('serviceWorker' in navigator){
- window.addEventListener('load',()=>{
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
- });
+function feedPet(){
+addPoints();
+document.getElementById("petText").textContent="તમારા મિત્રને ખાવાનું ખૂબ ગમ્યું! ❤️";
 }
-
-renderSettings();
-renderApps();
-applyTheme(currentTheme);
-changeColor(accent);
+function playPet(){
+addPoints();
+document.getElementById("petAnimal").textContent="🐕";
+document.getElementById("petText").textContent="વાહ! તમારા મિત્રને રમવાની મજા આવી! 🎾";
+}
 </script>
 </body>
 </html>
