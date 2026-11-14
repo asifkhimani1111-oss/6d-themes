@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AA MAGIC 3D–6D GAME WORLD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#101b42,#263b72);color:#fff}
+header{padding:18px 12px;text-align:center;background:linear-gradient(90deg,#ff8a00,#ffce00);color:#251500}
+header h1{margin:0;font-size:23px}
+header p{margin:6px 0 0}
+.wrap{max-width:850px;margin:auto;padding:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#ffffff18;border:1px solid #ffffff35;border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:20px;color:#ffe36c;margin-top:5px}
+.shop{background:linear-gradient(145deg,#fff,#dcecff);color:#172447;border-radius:18px;padding:14px;margin-top:12px;box-shadow:0 7px 20px #0005}
+.shop h2{text-align:center;margin:5px}
+.characters{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.person{background:#e8f0ff;border-radius:14px;padding:10px 5px;text-align:center;color:#172447}
+.person .face{font-size:40px}
+.person b{display:block}
+.person small{font-size:12px}
+.speech{background:#fff4c8;color:#553700;padding:12px;border-radius:12px;margin:10px 0;min-height:54px}
+.customer{background:#dff8ed;color:#104c35;padding:14px;border-radius:14px;text-align:center;margin:10px 0}
+.customer .face{font-size:45px}
+button{border:0;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.97)}
+.primary{background:#ff9d00;color:#241500}
+.green{background:#12a66a;color:white}
+.blue{background:#2868db;color:white}
+.red{background:#d94b4b;color:white}
+.gray{background:#dce4f1;color:#172447}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.product{background:#f0f5ff;color:#172447;border-radius:14px;padding:12px;text-align:center}
+.product .emoji{font-size:38px}
+.product h3{margin:5px 0}
+.product p{margin:5px;font-size:13px}
+.product button{width:100%;margin-top:6px}
+.panel{background:#ffffff16;border:1px solid #ffffff35;border-radius:16px;padding:13px;margin-top:12px}
+.panel h3{margin:0 0 10px;color:#ffe36c}
+.log{font-size:13px;line-height:1.7;max-height:150px;overflow:auto}
+.bill{background:#fff;color:#172447;border-radius:12px;padding:12px;margin-top:10px}
+.bill h3{text-align:center}
+.billrow{display:flex;justify-content:space-between;border-bottom:1px dashed #aaa;padding:6px}
+footer{text-align:center;padding:20px;color:#cbd8ff;font-size:12px}
+button:disabled{opacity:.4;cursor:not-allowed}
+@media(min-width:600px){.products{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>🎮 AA MAGIC 3D–6D GAME WORLD</h1>
+<p>🏬 AA ELECTRIC & ELECTRONICS</p>
+</header>
+<div class="wrap">
+<div class="stats">
+ <div class="stat">💰 દુકાનના પૈસા<b id="money">₹50,000</b></div>
+ <div class="stat">🧾 કુલ વેચાણ<b id="sales">₹0</b></div>
+ <div class="stat">⭐ નફો<b id="profit">₹0</b></div>
+</div>
+
+<div class="shop">
+<h2>🏬 આપણી ઇલેક્ટ્રોનિક્સ દુકાન</h2>
+<p style="text-align:center;margin:5px">ગ્રાહકોને ખુશ કરો અને દુકાન મોટી બનાવો!</p>
+<div class="characters">
+ <div class="person"><div class="face">👨🏻‍💼</div><b>અયાન</b><small>દુકાનનો માલિક</small></div>
+ <div class="person"><div class="face">👴🏻</div><b>નટુકાકા</b><small>હિસાબના માસ્ટર</small></div>
+ <div class="person"><div class="face">🧑🏻</div><b>બાઘા</b><small>ગ્રાહક સહાયક</small></div>
+</div>
+<div class="speech" id="speech">અયાન: નમસ્તે! આપણી દુકાન શરૂ થઈ ગઈ છે. ચાલો, ધંધો શરૂ કરીએ!</div>
+<div class="actions">
+ <button class="primary" onclick="speakCurrent()">🔊 અવાજ સાંભળો</button>
+ <button class="gray" onclick="toggleVoice()" id="voiceBtn">🔊 અવાજ ચાલુ</button>
+</div>
+</div>
+
+<div class="panel">
+<h3>🧑 ગ્રાહક વિભાગ</h3>
+<div class="customer">
+ <div class="face" id="customerFace">🚶</div>
+ <h3 id="customerName">ગ્રાહકની રાહ જોઈ રહ્યા છીએ</h3>
+ <p id="customerText">નવો ગ્રાહક લાવવા બટન દબાવો.</p>
+ <p id="requestText"></p>
+</div>
+<div class="actions">
+ <button class="green" onclick="newCustomer()">🚪 નવો ગ્રાહક લાવો</button>
+ <button class="blue" onclick="helpCustomer()">🗣️ બાઘા, મદદ કરો</button>
+ <button class="primary" onclick="sellItem()">🧾 વેચાણ કરો</button>
+</div>
+</div>
+
+<div class="panel">
+<h3>🛍️ દુકાનનો સામાન</h3>
+<p style="font-size:13px">ગ્રાહકની માંગ પ્રમાણે વસ્તુ પસંદ કરો. સ્ટોક ખાલી હોય તો નવો માલ ખરીદો.</p>
+<div class="products" id="products"></div>
+</div>
+
+<div class="panel">
+<h3>📦 નવો માલ ખરીદો</h3>
+<p>દુકાનમાં સ્ટોક વધારવા માટે માલ ખરીદો.</p>
+<div class="actions">
+<button class="blue" onclick="restock()">📦 બધો સ્ટોક ફરી ભરો – ₹5,000</button>
+<button class="primary" onclick="upgrade()">🏪 દુકાન અપગ્રેડ – ₹10,000</button>
+</div>
+<p id="levelText">દુકાનનું લેવલ: 1 ⭐</p>
+</div>
+
+<div class="panel">
+<h3>🧮 નટુકાકાનો હિસાબ</h3>
+<div class="bill" id="bill">
+<h3>🧾 AA ELECTRIC & ELECTRONICS</h3>
+<p style="text-align:center">હજુ કોઈ બિલ બન્યું નથી.</p>
+</div>
+</div>
+
+<div class="panel">
+<h3>📒 દુકાનનો રેકોર્ડ</h3>
+<div class="log" id="log">દુકાન શરૂ થઈ. અયાન શેઠ તૈયાર છે!</div>
+</div>
+</div>
+<footer>AA MAGIC 3D–6D GAME WORLD • મફત લોકલ ગેમ</footer>
+
+<script>
+const items=[
+ {name:"ફ્રિજ",emoji:"🧊",price:18000,cost:14000,stock:3},
+ {name:"એર કન્ડિશનર",emoji:"❄️",price:32000,cost:26000,stock:2},
+ {name:"ટીવી",emoji:"📺",price:15000,cost:11000,stock:3},
+ {name:"પંખો",emoji:"🪭",price:2500,cost:1700,stock:6},
+ {name:"વોશિંગ મશીન",emoji:"🧺",price:12500,cost:9500,stock:2},
+ {name:"LED લાઇટ",emoji:"💡",price:500,cost:250,stock:10},
+ {name:"સ્પીકર",emoji:"🔊",price:3500,cost:2400,stock:4},
+ {name:"બેટરી",emoji:"🔋",price:2200,cost:1500,stock:5}
+];
+let money=50000,sales=0,profit=0,level=1;
+let customer=null,selected=null,voice=true,lastSpeech="";
+let customerNames=["રમેશભાઈ","સુરેશભાઈ","મીનાબેન","કિરણભાઈ","જયેશભાઈ","પૂજાબેન"];
+let logs=[];
+const $=id=>document.getElementById(id);
+function moneyText(n){return "₹"+n.toLocaleString("en-IN")}
+function update(){
+ $("money").textContent=moneyText(money);
+ $("sales").textContent=moneyText(sales);
+ $("profit").textContent=moneyText(profit);
+ $("levelText").textContent="દુકાનનું લેવલ: "+level+" ⭐";
+ renderProducts();
+}
+function say(text){
+ $("speech").textContent=text;
+ lastSpeech=text;
+ if(voice)speakCurrent();
+}
+function speakCurrent(){
+ if(!("speechSynthesis" in window)){sayTextFallback();return}
+ if(!voice)return;
+ speechSynthesis.cancel();
+ let u=new SpeechSynthesisUtterance(lastSpeech);
+ u.lang="gu-IN";u.rate=.88;u.pitch=1;
+ speechSynthesis.speak(u);
+}
+function sayTextFallback(){
+ $("speech").textContent=lastSpeech+" (આ મોબાઇલમાં ગુજરાતી અવાજ ઉપલબ્ધ નથી.)";
+}
+function toggleVoice(){
+ voice=!voice;
+ $("voiceBtn").textContent=voice?"🔊 અવાજ ચાલુ":"🔇 અવાજ બંધ";
+ if(!voice && window.speechSynthesis)speechSynthesis.cancel();
+ if(voice)speakCurrent();
+}
+function log(text){
+ logs.unshift("• "+text);
+ $("log").innerHTML=logs.slice(0,18).join("<br>");
+}
+function renderProducts(){
+ $("products").innerHTML=items.map((p,i)=>`
+ <div class="product">
+ <div class="emoji">${p.emoji}</div>
+ <h3>${p.name}</h3>
+ <p>ભાવ: <b>${moneyText(p.price)}</b></p>
+ <p>સ્ટોક: <b>${p.stock}</b></p>
+ <button class="green" onclick="chooseItem(${i})" ${p.stock<1?"disabled":""}>આ વસ્તુ પસંદ કરો</button>
+ </div>`).join("");
+}
+function newCustomer(){
+ if(customer && !customer.done){
+  say("અયાન: પહેલાં આ ગ્રાહકની ખરીદી પૂરી કરો!");
+  return;
+ }
+ const p=items[Math.floor(Math.random()*items.length)];
+ customer={name:customerNames[Math.floor(Math.random()*customerNames.length)],item:p.name,index:items.indexOf(p),done:false};
+ selected=null;
+ $("customerFace").textContent="🧑🏻";
+ $("customerName").textContent=customer.name+" આવ્યા છે!";
+ $("customerText").textContent="મારે "+p.name+" ખરીદવું છે. કેટલાનો મળશે?";
+ $("requestText").textContent="ગ્રાહકની માંગ: "+p.emoji+" "+p.name;
+ say("બાઘા: આવો શેઠ! "+customer.name+" ને "+p.name+" જોઈએ છે. અયાન શેઠ, તમે ભાવ બતાવો!");
+ log(customer.name+" દુકાનમાં આવ્યા.");
+}
+function helpCustomer(){
+ if(!customer){say("બાઘા: પહેલાં કોઈ ગ્રાહકને દુકાનમાં બોલાવો!");return}
+ let p=items[customer.index];
+ say("બાઘા: આવો "+customer.name+"! આ રહ્યો સરસ "+p.name+". તેની કિંમત "+moneyText(p.price)+" છે. અયાન શેઠ, બિલ બનાવી આપો!");
+}
+function chooseItem(i){
+ if(!customer){say("અયાન: પહેલાં ગ્રાહકને બોલાવો!");return}
+ if(customer.done){say("નટુકાકા: આ ગ્રાહકનું બિલ થઈ ગયું છે.");return}
+ if(items[i].stock<1){say("બાઘા: માફ કરશો, આ વસ્તુનો સ્ટોક ખાલી છે.");return}
+ selected=i;
+ let p=items[i];
+ say("બાઘા: "+p.name+" પસંદ કર્યું. કિંમત "+moneyText(p.price)+" છે.");
+ if(i!==customer.index)say("અયાન: ગ્રાહકને "+customer.item+" જોઈતું હતું. યોગ્ય વસ્તુ પસંદ કરો!");
+}
+function sellItem(){
+ if(!customer){say("નટુકાકા: ગ્રાહક વગર બિલ કેવી રીતે બનાવું?");return}
+ if(customer.done){say("નટુકાકા: આ ગ્રાહકનું બિલ પહેલેથી બની ગયું છે.");return}
+ if(selected===null){say("બાઘા: પહેલાં ગ્રાહક માટે વસ્તુ પસંદ કરો!");return}
+ if(selected!==customer.index){say("બાઘા: ગ્રાહકને "+customer.item+" જોઈએ છે. એ વસ્તુ પસંદ કરો!");return}
+ let p=items[selected];
+ if(p.stock<1){say("નટુકાકા: સ્ટોક ખાલી છે.");return}
+ p.stock--;
+ money+=p.price;
+ sales+=p.price;
+ let earned=p.price-p.cost;
+ profit+=earned;
+ customer.done=true;
+ let paid=Math.ceil(p.price/1000)*1000;
+ if(paid<p.price)paid=p.price;
+ let change=paid-p.price;
+ $("bill").innerHTML=`
+ <h3>🧾 AA ELECTRIC & ELECTRONICS</h3>
+ <p>ગ્રાહક: ${customer.name}</p>
+ <div class="billrow"><span>વસ્તુ</span><b>${p.name}</b></div>
+ <div class="billrow"><span>કિંમત</span><b>${moneyText(p.price)}</b></div>
+ <div class="billrow"><span>ગ્રાહકે આપ્યા</span><b>${moneyText(paid)}</b></div>
+ <div class="billrow"><span>પરત આપવાના</span><b>${moneyText(change)}</b></div>
+ <div class="billrow"><span>નફો</span><b>${moneyText(earned)}</b></div>
+ <h3>આભાર! ફરી પધારજો 🙏</h3>`;
+ update();
+ log(p.name+" વેચાયું. વેચાણ "+moneyText(p.price)+", નફો "+moneyText(earned));
+ say("નટુકાકા: વાહ અયાન શેઠ! "+p.name+" નું બિલ "+moneyText(p.price)+" થયું. ગ્રાહકને "+moneyText(change)+" પાછા આપવાના. આપણો નફો "+moneyText(earned)+" થયો!");
+}
+function restock(){
+ if(money<5000){say("નટુકાકા: માલ ખરીદવા માટે પૈસા ઓછા છે!");return}
+ money-=5000;
+ items.forEach(p=>p.stock+=2);
+ update();
+ say("અયાન: શાબાશ! નવો માલ આવી ગયો. હવે ગ્રાહકોને વધુ વસ્તુઓ આપી શકીશું!");
+ log("₹5,000 ખર્ચીને દરેક વસ્તુનો સ્ટોક વધાર્યો.");
+}
+function upgrade(){
+ let cost=10000*level;
+ if(money<cost){say("નટુકાકા: દુકાન અપગ્રેડ કરવા "+moneyText(cost)+" જોઈએ.");return}
+ money-=cost;level++;
+ items.forEach(p=>p.price=Math.round(p.price*1.03));
+ update();
+ say("અયાન: વાહ! આપણી દુકાનનું લેવલ વધી ગયું. હવે શાનદાર શોરૂમ બનાવીએ!");
+ log("દુકાન અપગ્રેડ થઈ. હવે લેવલ "+level+".");
+}
+update();
+</script>
+</body>
+</html>
