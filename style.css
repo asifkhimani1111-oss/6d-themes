@@ -1,0 +1,47 @@
+
+*{box-sizing:border-box}
+body{margin:0;background:#eaf2f8;color:#172b40;font-family:Arial,sans-serif}
+.topbar{background:linear-gradient(120deg,#102c4a,#176b87);color:white;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font-size:20px;margin:0 0 6px}
+.topbar p{margin:0;font-size:13px}
+.money{background:#fff;color:#14532d;padding:10px 14px;border-radius:12px;font-weight:bold}
+main{max-width:1000px;margin:auto;padding:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stats div{background:white;border-radius:12px;padding:12px 5px;text-align:center;box-shadow:0 2px 8px #0001;font-size:13px}
+.shop{height:420px;position:relative;overflow:hidden;border:7px solid #9a6337;border-radius:16px;background:linear-gradient(#b8e5f5 0 52%,#d9b68a 52% 100%);box-shadow:inset 0 0 25px #70451e55}
+.shop:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 95px,#ffffff18 96px 98px)}
+.shop-sign{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#173e5b;color:#fff;padding:9px 15px;border-radius:9px;font-weight:bold;white-space:nowrap;z-index:2}
+.shelf{position:absolute;left:5%;right:5%;height:62px;background:#85542e;border:5px solid #59391e;display:flex;justify-content:space-around;align-items:center;color:#fff;font-size:23px;box-shadow:0 6px 5px #0003}
+.shelf-one{top:75px}.shelf-two{top:155px}
+.shelf span{background:#fff2;padding:7px;border-radius:8px}
+.counter{position:absolute;bottom:25px;left:36%;width:30%;height:65px;background:#79502e;border:5px solid #4e321c;border-radius:8px;color:white;text-align:center;padding:18px 2px;font-weight:bold}
+.person{position:absolute;z-index:4;display:flex;flex-direction:column;align-items:center;text-align:center;min-width:65px;transition:left 1.2s ease,top 1.2s ease,transform .5s ease}
+.avatar{font-size:43px;filter:drop-shadow(2px 3px 2px #0005);animation:bob .65s infinite alternate}
+.person b{font-size:10px;background:#fff;padding:3px 5px;border-radius:5px}
+.person small{font-size:9px;background:#fff;padding:2px 4px;border-radius:4px}
+.ayan{left:12%;top:265px}.bagha{left:72%;top:265px}.natu{left:45%;top:265px}
+.customer{left:88%;top:265px}
+.hidden{display:none}
+.door{position:absolute;right:5px;bottom:4px;background:#654321;color:white;padding:8px;border-radius:7px;font-size:12px}
+.dialog,.panel{background:white;margin-top:13px;padding:14px;border-radius:14px;box-shadow:0 2px 8px #0001}
+.dialog-title{font-weight:bold;color:#14516d}
+#message{font-size:16px;min-height:24px}
+button{border:0;background:#087e8b;color:white;padding:11px 14px;border-radius:9px;font-weight:bold;cursor:pointer;margin:4px}
+button:active{transform:scale(.97)}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.product{border:1px solid #d6e1e8;border-radius:12px;padding:12px;background:#f8fbfd}
+.product .emoji{font-size:30px}
+.product h3{margin:5px 0;font-size:16px}
+.product p{margin:4px 0;font-size:13px}
+.product button{width:100%;margin:7px 0 0}
+.actions{display:flex;flex-wrap:wrap;gap:5px}
+.reset{background:#a33}
+#bill{background:#f4f7f9;border-radius:10px;padding:12px;white-space:pre-line;line-height:1.7}
+footer{text-align:center;padding:20px;color:#63798b;font-size:12px}
+.walking .avatar{animation:walk .25s infinite alternate}
+.working .avatar{animation:work .4s infinite alternate}
+@keyframes bob{to{transform:translateY(-4px)}}
+@keyframes walk{to{transform:translateY(-7px) rotate(5deg)}}
+@keyframes work{to{transform:rotate(-8deg) translateY(-3px)}}
+@media(min-width:650px){.products{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:450px){.stats{grid-template-columns:repeat(2,1fr)}.shop{height:390px}.shelf{font-size:17px}.counter{left:30%;width:38%}.avatar{font-size:35px}.ayan{left:5%}.natu{left:43%}.bagha{left:72%}}
