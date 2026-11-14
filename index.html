@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102c4a">
+  <title>AA MAGIC 3D–6D GAME WORLD</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <h1>✨ AA MAGIC 3D–6D GAME WORLD</h1>
+    <p>AA ELECTRIC & ELECTRONICS</p>
+  </div>
+  <div class="money">દુકાનમાં રોકડ: ₹<span id="cash">50000</span></div>
+</header>
+
+<main>
+  <section class="stats">
+    <div>📦 સ્ટોક: <b id="stockCount">0</b></div>
+    <div>🛒 વેચાણ: <b id="salesCount">0</b></div>
+    <div>💰 નફો: ₹<b id="profit">0</b></div>
+    <div>👥 ગ્રાહકો: <b id="customerCount">0</b></div>
+  </section>
+
+  <section class="shop">
+    <div class="shop-sign">🏪 AA ELECTRIC & ELECTRONICS</div>
+    <div class="shelf shelf-one">
+      <span>🧊 ફ્રિજ</span><span>📺 ટીવી</span><span>❄️ AC</span>
+    </div>
+    <div class="shelf shelf-two">
+      <span>🌀 પંખો</span><span>🧺 વોશિંગ મશીન</span><span>🔊 સ્પીકર</span>
+    </div>
+    <div class="counter">🧾 BILL COUNTER</div>
+
+    <div id="ayan" class="person ayan">
+      <div class="avatar">🧑🏻‍💼</div><b>AYAN</b>
+      <small>દુકાન માલિક</small>
+    </div>
+    <div id="bagha" class="person bagha">
+      <div class="avatar">🧑🏽</div><b>BAGHA</b>
+      <small>સેલ્સમેન</small>
+    </div>
+    <div id="natu" class="person natu">
+      <div class="avatar">👴🏻</div><b>NATU KAKA</b>
+      <small>હિસાબનીશ</small>
+    </div>
+    <div id="customer" class="person customer hidden">
+      <div class="avatar">🧔🏻</div><b>ગ્રાહક</b>
+      <small id="customerStatus">દુકાનમાં આવ્યો</small>
+    </div>
+    <div class="door">🚪 પ્રવેશ</div>
+  </section>
+
+  <section class="dialog">
+    <div class="dialog-title">💬 દુકાનમાં શું ચાલી રહ્યું છે?</div>
+    <p id="message">આપનું સ્વાગત છે! ગ્રાહકની રાહ જુઓ.</p>
+    <button id="voiceButton" onclick="speakLast()">🔊 ફરી સાંભળો</button>
+  </section>
+
+  <section class="panel">
+    <h2>🛍️ ગ્રાહક માટે સામાન</h2>
+    <div id="products" class="products"></div>
+  </section>
+
+  <section class="panel">
+    <h2>🧾 નટુ કાકાનો હિસાબ</h2>
+    <div id="bill">હજુ કોઈ બિલ બન્યું નથી.</div>
+    <div class="actions">
+      <button onclick="nextCustomer()">🚶 નવો ગ્રાહક બોલાવો</button>
+      <button onclick="closeDay()">🌙 આજનો હિસાબ બંધ કરો</button>
+      <button class="reset" onclick="resetGame()">🔄 નવી ગેમ શરૂ કરો</button>
+    </div>
+  </section>
+</main>
+
+<footer>આપણી પોતાની ઓરિજિનલ ગેમ • સંપૂર્ણ લોકલ ગેમ</footer>
+
+<script src="account.js"></script>
+<script src="voice.js"></script>
+<script src="characters.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
