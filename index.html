@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>અયાન ઇલેક્ટ્રોનિક્સ 3D ગેમ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js & OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Google Fonts for Gujarati -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@600;700;800&family=Noto+Sans+Gujarati:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            font-family: 'Baloo Bhai 2', 'Noto Sans Gujarati', sans-serif;
+            margin: 0; padding: 0; width: 100vw; height: 100dvh;
+            overflow: hidden; background: #0f172a; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #canvas-container { position: fixed; inset: 0; width: 100vw; height: 100dvh; z-index: 1; }
+        .btn-cartoon {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.25);
+            border: 2.5px solid rgba(255, 255, 255, 0.85);
+        }
+        .btn-cartoon:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+        .btn-cartoon:disabled { opacity: 0.55; cursor: not-allowed; filter: grayscale(45%); }
+        .glass-hud {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(10px);
+            border: 3px solid #ffffff;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+        }
+        .bubble-3d {
+            position: fixed; transform: translate(-50%, -100%);
+            pointer-events: auto; z-index: 20;
+            transition: opacity 0.2s ease, transform 0.15s ease-out; max-width: 250px;
+        }
+        .bubble-arrow::after {
+            content: ''; position: absolute; bottom: -8px; left: 50%;
+            transform: translateX(-50%); border-width: 8px 8px 0; border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.9); opacity: 1; }
+            100% { transform: translateY(-60px) scale(1.25); opacity: 0; }
+        }
+        .floating-reward {
+            position: fixed; z-index: 50; pointer-events: none; font-weight: 800;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.5); animation: floatUp 1.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="canvas-container"></div>
+    <div id="bubbles-layer" class="fixed inset-0 pointer-events-none z-20 overflow-hidden"></div>
+
+    <!-- HUD OVERLAY -->
+    <div class="relative z-30 w-full h-full pointer-events-none flex flex-col justify-between p-2 sm:p-3">
+
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="pointer-events-auto glass-hud rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-500 text-white flex items-center gap-2.5">
+                <span class="text-2xl sm:text-3xl">🏬</span>
+                <div>
+                    <h1 class="text-xs sm:text-base font-extrabold leading-tight">અયાન ઇલેક્ટ્રોનિક્સ 3D</h1>
+                    <div class="text-[10px] sm:text-xs font-bold text-sky-100 flex items-center gap-2">
+                        <span>લેવલ <span id="hud-level">1</span></span>
+                        <span>•</span>
+                        <span>ગ્રાહક સેવાયા: <span id="hud-served">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5">
+                <div class="glass-hud rounded-xl px-3 py-1 bg-amber-50 border-amber-400 flex items-center gap-2">
+                    <span class="text-xl sm:text-2xl">🪙</span>
+                    <div>
+                        <div class="text-[9px] font-bold text-amber-700 leading-none">ગલ્લો</div>
+                        <div id="hud-cash" class="text-xs sm:text-lg font-extrabold text-amber-600">₹ 500</div>
+                    </div>
+                </div>
+
+                <div class="glass-hud rounded-xl px-2.5 py-1 bg-purple-50 border-purple-300 flex items-center gap-1.5">
+                    <span class="text-lg sm:text-2xl">⭐</span>
+                    <div>
+                        <div class="text-[9px] font-bold text-purple-700 leading-none">સ્ટાર</div>
+                        <div id="hud-stars" class="text-xs sm:text-lg font-extrabold text-purple-600">0</div>
+                    </div>
+                </div>
+
+                <button onclick="toggleAudio()" class="btn-cartoon bg-sky-500 text-white w-10 h-10 rounded-xl flex items-center justify-center text-base" title="અવાજ ચાલુ/બંધ">
+                    <i id="audio-icon" class="fas fa-volume-up"></i>
+                </button>
+
+                <button onclick="toggleUpgradeModal()" class="btn-cartoon bg-rose-500 text-white px-3 h-10 rounded-xl flex items-center gap-1.5 text-xs font-extrabold">
+                    <span>🚀</span>
+                    <span class="hidden sm:inline">અપગ્રેડ</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="pointer-events-auto flex flex-wrap gap-1 mt-1">
+            <button onclick="focusCamera('overview')" class="glass-hud px-2.5 py-1 rounded-xl text-xs font-extrabold text-slate-700 hover:bg-sky-100">🎥 આખો શોરૂમ ફેરવો</button>
+            <button onclick="focusCamera('bago')" class="glass-hud px-2.5 py-1 rounded-xl text-xs font-extrabold text-emerald-700 hover:bg-emerald-100">👷🏽‍♂️ બાગો સ્ટેશન</button>
+            <button onclick="focusCamera('nattu')" class="glass-hud px-2.5 py-1 rounded-xl text-xs font-extrabold text-amber-700 hover:bg-amber-100">👴🏻 નટુ કાકા કાઉન્ટર</button>
+            <button onclick="focusCamera('ayaan')" class="glass-hud px-2.5 py-1 rounded-xl text-xs font-extrabold text-blue-700 hover:bg-blue-100">👦🏻 અયાન શેઠ તિજોરી</button>
+        </div>
+
+        <div class="mt-auto pointer-events-auto flex flex-col gap-2 items-center pb-1">
+            <div id="status-banner" class="glass-hud px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold text-indigo-900 border-indigo-300 text-center max-w-xl">
+                👇 પહેલા "+ નવો ગ્રાહક" બટન દબાવો, પછી સ્ટેપ બાય સ્ટેપ કામ કરો!
+            </div>
+
+            <div class="glass-hud rounded-3xl p-2 sm:p-2.5 w-full max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-2 bg-white/95">
+                <button onclick="spawnCustomer(true)" class="btn-cartoon bg-gradient-to-b from-purple-500 to-indigo-600 text-white py-2 px-2.5 rounded-2xl flex items-center justify-center gap-2 text-left">
+                    <span class="text-2xl">🚶‍♂️</span>
+                    <div class="leading-tight">
+                        <div class="text-xs sm:text-sm font-extrabold">+ નવો ગ્રાહક</div>
+                        <div class="text-[10px] text-purple-100">ગ્રાહક બોલાવો</div>
+                    </div>
+                </button>
+
+                <button id="btn-bago" onclick="actionBagoPack(event)" class="btn-cartoon bg-gradient-to-b from-emerald-400 to-green-600 text-white py-2 px-2.5 rounded-2xl flex items-center justify-center gap-2 text-left relative">
+                    <span class="text-2xl">📦</span>
+                    <div class="leading-tight">
+                        <div class="text-xs sm:text-sm font-extrabold">બાગો: પેક કરો</div>
+                        <div class="text-[10px] text-emerald-100">વસ્તુ આપી બિલ મોકલો</div>
+                    </div>
+                    <span id="badge-bago" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </button>
+
+                <button id="btn-nattu" onclick="actionNattuBill(event)" class="btn-cartoon bg-gradient-to-b from-amber-400 to-orange-600 text-white py-2 px-2.5 rounded-2xl flex items-center justify-center gap-2 text-left relative">
+                    <span class="text-2xl">🧾</span>
+                    <div class="leading-tight">
+                        <div class="text-xs sm:text-sm font-extrabold">નટુ કાકા: બિલ</div>
+                        <div class="text-[10px] text-amber-100">પાક્કું બિલ બનાવો</div>
+                    </div>
+                    <span id="badge-nattu" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </button>
+
+                <button id="btn-ayaan" onclick="actionAyaanPay(event)" class="btn-cartoon bg-gradient-to-b from-blue-500 to-indigo-700 text-white py-2 px-2.5 rounded-2xl flex items-center justify-center gap-2 text-left relative">
+                    <span class="text-2xl">💰</span>
+                    <div class="leading-tight">
+                        <div class="text-xs sm:text-sm font-extrabold">અયાન શેઠ: પેમેન્ટ</div>
+                        <div class="text-[10px] text-blue-100">પૈસા લઈ માલ આપો</div>
+                    </div>
+                    <span id="badge-ayaan" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-extrabold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPGRADE MODAL -->
+    <div id="upgrade-modal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-5 border-4 border-amber-400 shadow-2xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b-2 border-slate-100 pb-3 mb-4">
+                <h2 class="text-xl font-extrabold text-indigo-700 flex items-center gap-2"><span>🏬</span> શોરૂમ અપગ્રેડ્સ</h2>
+                <button onclick="toggleUpgradeModal()" class="bg-rose-500 text-white w-9 h-9 rounded-full font-extrabold">✕</button>
+            </div>
+            <div id="upgrade-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+    </div>
+
+    <!-- WELCOME MODAL -->
+    <div id="welcome-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 border-4 border-sky-400 shadow-2xl text-center">
+            <div class="text-5xl mb-2">🏬✨ 3D ગેમ</div>
+            <h2 class="text-2xl font-extrabold text-indigo-700">અયાન ઇલેક્ટ્રોનિક્સ 3D શોરૂમ</h2>
+            <p class="text-sm text-slate-600 font-bold mt-1 mb-4">બટન દબાવો ત્યારે જ ગ્રાહક આવશે અને કામ થશે!</p>
+            <button onclick="startGame()" class="btn-cartoon w-full bg-gradient-to-r from-emerald-500 to-green-600 text-white font-extrabold text-lg py-3 rounded-2xl">
+                ગેમ શરૂ કરો! 🚀
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const PRODUCTS = [
+            { id: 'tv', name: 'સ્માર્ટ LED ટીવી', emoji: '📺', price: 350 },
+            { id: 'fridge', name: 'ડબલ-ડોર ફ્રીજ', emoji: '❄️', price: 500 },
+            { id: 'ac', name: 'સુપર કૂલ એસી', emoji: '🌬️', price: 650 },
+            { id: 'washing', name: 'વોશિંગ મશીન', emoji: '🧺', price: 450 },
+            { id: 'laptop', name: 'ગેમિંગ લેપટોપ', emoji: '💻', price: 800 }
+        ];
+
+        const CUSTOMER_NAMES = [
+            "રમેશભાઈ", "પ્રકાશભાઈ", "સુરેશભાઈ", "મહેશભાઈ", "અશોકભાઈ", 
+            "ટીનાબેન", "પ્રીતિબેન", "હંસાબેન", "ગીતાબેન", "રેખાબેન", 
+            "દિનેશભાઈ", "ભાવનાબેન", "વિજયભાઈ", "ઝરણાબેન", "મનસુખભાઈ"
+        ];
+
+        const UPGRADES = [
+            { id: 'auto_bago', name: 'બાગોની ટર્બો સ્પીડ', desc: 'આપમેળે પેકિંગ કરશે', icon: '📦', level: 0, cost: 800, mult: 1.8 },
+            { id: 'auto_nattu', name: 'નટુ કાકાનું કોમ્પ્યુટર', desc: 'આપમેળે બિલ બનાવશે', icon: '🧾', level: 0, cost: 1000, mult: 1.8 },
+            { id: 'auto_ayaan', name: 'ડિજિટલ પેમેન્ટ', desc: 'વધુ નફો (+20%)', icon: '💳', level: 0, cost: 1200, mult: 1.9 }
+        ];
+
+        const state = {
+            cash: 500, stars: 0, servedCount: 0, level: 1, priceBonus: 1.0,
+            soundOn: true, autoBago: 0, autoNattu: 0, autoAyaan: 0
+        };
+
+        let speechQueue = [];
+        let isSpeaking = false;
+
+        function speakText(text) {
+            if (!state.soundOn || !('speechSynthesis' in window)) return;
+            speechQueue.push(text);
+            processSpeechQueue();
+        }
+
+        function processSpeechQueue() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true;
+            const text = speechQueue.shift();
+            try {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'gu-IN';
+                utterance.pitch = 1.1;
+                utterance.rate = 1.0;
+                utterance.onend = () => { isSpeaking = false; setTimeout(processSpeechQueue, 150); };
+                utterance.onerror = () => { isSpeaking = false; processSpeechQueue(); };
+                window.speechSynthesis.speak(utterance);
+            } catch (e) { isSpeaking = false; }
+        }
+
+        function toggleAudio() {
+            state.soundOn = !state.soundOn;
+            document.getElementById('audio-icon').className = state.soundOn ? 'fas fa-volume-up' : 'fas fa-volume-mute text-rose-200';
+            if (state.soundOn) speakText("અવાજ ચાલુ કર્યો છે!");
+        }
+
+        let scene, camera, renderer, controls;
+        let ayaanChar, nattuChar, bagoChar;
+        let activeSpeech = { ayaan: null, nattu: null, bago: null };
+        let customers = [];
+        let coinParticles = [];
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        const POS = {
+            entrance: new THREE.Vector3(0, 0, 10.5),
+            bagoStation: new THREE.Vector3(-4.2, 0, 0.2),
+            bagoCustomerWait: new THREE.Vector3(-2.4, 0, 0.5),
+            nattuStation: new THREE.Vector3(1.5, 0, -3.8),
+            nattuCustomerWait: new THREE.Vector3(1.5, 0, -1.6),
+            ayaanStation: new THREE.Vector3(5.2, 0, 1.2),
+            ayaanCustomerWait: new THREE.Vector3(3.0, 0, 1.2),
+            exit: new THREE.Vector3(2.0, 0, 11.5)
+        };
+
+        function init3DShowroom() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xbae6fd);
+            scene.fog = new THREE.Fog(0xbae6fd, 22, 55);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 12, 16);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.07;
+            controls.maxPolarAngle = Math.PI / 2.1;
+            controls.minDistance = 6;
+            controls.maxDistance = 28;
+            controls.target.set(0, 1.2, 0);
+
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0xfef3c7, 0.8);
+            scene.add(hemiLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            sunLight.position.set(12, 22, 14);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
+
+            buildShowroomRoom();
+            buildShowroomRacksAndProducts();
+            buildPackingTable();
+            buildBillingCounter();
+            buildOwnerCashDesk();
+
+            bagoChar = createStylizedCharacter({ name: 'bago', shirtColor: 0x10b981, pantsColor: 0x1e3a8a, skinColor: 0xe0ac69, hairColor: 0x1e293b, hatColor: 0xfacc15 });
+            bagoChar.position.copy(POS.bagoStation);
+            bagoChar.rotation.y = Math.PI / 2;
+            scene.add(bagoChar);
+
+            nattuChar = createStylizedCharacter({ name: 'nattu', shirtColor: 0xf59e0b, pantsColor: 0x78350f, skinColor: 0xffdbac, hairColor: 0xe2e8f0, hatColor: 0xffffff, hasGlasses: true, hasMustache: true });
+            nattuChar.position.copy(POS.nattuStation);
+            scene.add(nattuChar);
+
+            ayaanChar = createStylizedCharacter({ name: 'ayaan', shirtColor: 0x2563eb, pantsColor: 0x0f172a, skinColor: 0xffdbac, hairColor: 0x1e1b4b });
+            ayaanChar.position.copy(POS.ayaanStation);
+            ayaanChar.rotation.y = -Math.PI / 2;
+            scene.add(ayaanChar);
+
+            renderer.domElement.addEventListener('pointerdown', on3DCanvasTap);
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('orientationchange', () => setTimeout(onWindowResize, 300));
+        }
+
+        function buildShowroomRoom() {
+            const floorGroup = new THREE.Group();
+            const tileSize = 2;
+            for (let x = -8; x <= 8; x += tileSize) {
+                for (let z = -7; z <= 7; z += tileSize) {
+                    const isEven = ((x + z) / tileSize) % 2 === 0;
+                    const tile = new THREE.Mesh(new THREE.BoxGeometry(tileSize, 0.3, tileSize), new THREE.MeshStandardMaterial({ color: isEven ? 0xffffff : 0xe0f2fe, roughness: 0.2 }));
+                    tile.position.set(x, -0.15, z);
+                    tile.receiveShadow = true;
+                    floorGroup.add(tile);
+                }
+            }
+            scene.add(floorGroup);
+
+            const plaza = new THREE.Mesh(new THREE.BoxGeometry(26, 0.25, 26), new THREE.MeshToonMaterial({ color: 0x86efac }));
+            plaza.position.set(0, -0.2, 0);
+            scene.add(plaza);
+
+            const wallMat = new THREE.MeshToonMaterial({ color: 0xfef9c3 });
+            const backWall = new THREE.Mesh(new THREE.BoxGeometry(18, 4.5, 0.4), wallMat);
+            backWall.position.set(0, 2.25, -7.5);
+            scene.add(backWall);
+
+            const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 4.5, 15), wallMat);
+            leftWall.position.set(-8.8, 2.25, 0);
+            scene.add(leftWall);
+
+            const signCanvas = document.createElement('canvas');
+            signCanvas.width = 1024; signCanvas.height = 220;
+            const ctx = signCanvas.getContext('2d');
+            ctx.fillStyle = '#1d4ed8'; ctx.fillRect(0, 0, 1024, 220);
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 18; ctx.strokeRect(10, 10, 1004, 200);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 72px "Noto Sans Gujarati", sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('⚡ અયાન ઇલેક્ટ્રોનિક્સ શોરૂમ ⚡', 512, 112);
+
+            const signTex = new THREE.CanvasTexture(signCanvas);
+            const signBoard = new THREE.Mesh(new THREE.BoxGeometry(9.5, 1.8, 0.25), new THREE.MeshBasicMaterial({ map: signTex }));
+            signBoard.position.set(0, 3.8, -7.2);
+            scene.add(signBoard);
+        }
+
+        function buildShowroomRacksAndProducts() {
+            const rackMat = new THREE.MeshToonMaterial({ color: 0x64748b });
+            const shelf1 = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.15, 2.5), rackMat);
+            shelf1.position.set(-7.8, 1.5, -4.5);
+            const tvBody = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 2.0), new THREE.MeshToonMaterial({ color: 0x0f172a }));
+            tvBody.position.set(-7.7, 2.3, -4.5);
+            const tvScreen = new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.0, 1.8), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+            tvScreen.position.set(-7.68, 2.3, -4.5);
+            scene.add(shelf1, tvBody, tvScreen);
+
+            const fridge = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2.8, 1.6), new THREE.MeshToonMaterial({ color: 0xef4444 }));
+            fridge.position.set(-7.8, 1.4, -1.8);
+            fridge.castShadow = true;
+            scene.add(fridge);
+
+            const acUnit = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 2.4), new THREE.MeshToonMaterial({ color: 0xffffff }));
+            acUnit.position.set(-8.3, 3.2, 1.2);
+            const acVent = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.15, 2.2), new THREE.MeshBasicMaterial({ color: 0x06b6d4 }));
+            acVent.position.set(-8.28, 2.9, 1.2);
+            scene.add(acUnit, acVent);
+
+            const washer = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.5, 1.4), new THREE.MeshToonMaterial({ color: 0x8b5cf6 }));
+            washer.position.set(-7.8, 0.75, 1.2);
+            washer.castShadow = true;
+            const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.15, 16), new THREE.MeshBasicMaterial({ color: 0xbae6fd }));
+            drum.rotation.z = Math.PI / 2;
+            drum.position.set(-7.08, 0.8, 1.2);
+            scene.add(washer, drum);
+
+            const lapTable = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.0, 2.0), new THREE.MeshToonMaterial({ color: 0xf59e0b }));
+            lapTable.position.set(-7.8, 0.5, 4.0);
+            const lapBase = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.9), new THREE.MeshToonMaterial({ color: 0x1e293b }));
+            lapBase.position.set(-7.7, 1.04, 4.0);
+            const lapScreen = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.65, 0.9), new THREE.MeshBasicMaterial({ color: 0x4ade80 }));
+            lapScreen.position.set(-8.0, 1.35, 4.0);
+            lapScreen.rotation.z = -0.25;
+            scene.add(lapTable, lapBase, lapScreen);
+        }
+
+        function buildPackingTable() {
+            const table = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.0, 2.6), new THREE.MeshToonMaterial({ color: 0x10b981 }));
+            table.position.set(-3.5, 0.5, 0.2);
+            table.castShadow = true;
+            scene.add(table);
+        }
+
+        function buildBillingCounter() {
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.1, 1.3), new THREE.MeshToonMaterial({ color: 0xf97316 }));
+            desk.position.set(1.5, 0.55, -2.8);
+            desk.castShadow = true;
+            scene.add(desk);
+        }
+
+        function buildOwnerCashDesk() {
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.15, 3.2), new THREE.MeshToonMaterial({ color: 0x1d4ed8 }));
+            desk.position.set(4.2, 0.575, 1.2);
+            desk.castShadow = true;
+            scene.add(desk);
+        }
+
+        function createStylizedCharacter(opts) {
+            const group = new THREE.Group();
+            group.userData = { charName: opts.name, actionTimer: 0 };
+
+            const legGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.55, 12);
+            const legMat = new THREE.MeshToonMaterial({ color: opts.pantsColor || 0x1e3a8a });
+            const leftLeg = new THREE.Mesh(legGeo, legMat); leftLeg.position.set(-0.2, 0.27, 0);
+            const rightLeg = new THREE.Mesh(legGeo, legMat); rightLeg.position.set(0.2, 0.27, 0);
+            group.add(leftLeg, rightLeg);
+
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.44, 0.85, 16), new THREE.MeshToonMaterial({ color: opts.shirtColor }));
+            torso.position.y = 0.92;
+            group.add(torso);
+
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.48, 20, 20), new THREE.MeshToonMaterial({ color: opts.skinColor || 0xffdbac }));
+            head.position.y = 1.78;
+            group.add(head);
+
+            if (opts.hatColor) {
+                const hat = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.46), new THREE.MeshToonMaterial({ color: opts.hatColor }));
+                hat.position.y = 1.84;
+                group.add(hat);
+            }
+
+            if (opts.hasGlasses) {
+                const glassGeo = new THREE.TorusGeometry(0.13, 0.022, 8, 16);
+                const glassMat = new THREE.MeshBasicMaterial({ color: 0x1e293b });
+                const gL = new THREE.Mesh(glassGeo, glassMat); gL.position.set(-0.16, 1.82, 0.51);
+                const gR = new THREE.Mesh(glassGeo, glassMat); gR.position.set(0.16, 1.82, 0.51);
+                group.add(gL, gR);
+            }
+
+            if (opts.hasMustache) {
+                const stache = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 0.06), new THREE.MeshBasicMaterial({ color: 0x475569 }));
+                stache.position.set(0, 1.71, 0.47);
+                group.add(stache);
+            }
+
+            const armGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.65, 10);
+            const armMat = new THREE.MeshToonMaterial({ color: opts.shirtColor });
+            const rightArm = new THREE.Mesh(armGeo, armMat);
+            rightArm.position.set(0.48, 0.95, 0.1);
+            rightArm.rotation.z = -0.25;
+            group.add(rightArm);
+            group.userData.rightArm = rightArm;
+
+            const carryBox = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.45, 0.55), new THREE.MeshToonMaterial({ color: 0xd97706 }));
+            carryBox.position.set(0, 0.95, 0.55);
+            carryBox.visible = false;
+            group.add(carryBox);
+            group.userData.carryBox = carryBox;
+
+            return group;
+        }
+
+        function spawnCustomer(manual = false) {
+            if (customers.length >= 7) {
+                if (manual) triggerCharacterSpeech('ayaan', "શોરૂમમાં હમણાં ગ્રાહકો ભરેલા છે! પહેલા તેમનું કામ પૂરું કરો.");
+                return;
+            }
+
+            const product = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
+            const randomName = CUSTOMER_NAMES[Math.floor(Math.random() * CUSTOMER_NAMES.length)];
+            const colors = [0xec4899, 0x8b5cf6, 0x06b6d4, 0xf43f5e, 0x84cc16];
+            const shirtColor = colors[Math.floor(Math.random() * colors.length)];
+
+            const mesh = createStylizedCharacter({
+                name: 'customer',
+                shirtColor: shirtColor,
+                pantsColor: 0x1e293b,
+                skinColor: 0xffdbac,
+                hatColor: Math.random() > 0.5 ? 0xf43f5e : null
+            });
+
+            const offsetX = (Math.random() - 0.5) * 2.0;
+            mesh.position.set(POS.entrance.x + offsetX, 0, POS.entrance.z);
+            scene.add(mesh);
+
+            const custText = `नमस्ते અયાનભાઈ! હું ${randomName} છું. મારે આ શોરૂમમાંથી મસ્ત ${product.name} જોતું છે!`;
+            speakText(custText);
+
+            const customerObj = {
+                id: Date.now() + Math.random(),
+                mesh,
+                product,
+                custName: randomName,
+                stage: 'to_bago',
+                targetPos: POS.bagoCustomerWait.clone().add(new THREE.Vector3((Math.random() - 0.5) * 1.2, 0, 0))
+            };
+
+            customers.push(customerObj);
+            updateQueueBadges();
+            setStatusBanner(`🚶‍♂️ ${randomName} શોરૂમમાં પધાર્યા છે અને ${product.name} માંગી રહ્યા છે!`);
+        }
+
+        function triggerCharacterSpeech(charKey, text, duration = 3500) {
+            activeSpeech[charKey] = { text, expires: Date.now() + duration };
+            speakText(text);
+        }
+
+        function actionBagoPack(e) {
+            const cust = customers.find(c => c.stage === 'wait_bago' || c.stage === 'to_bago');
+            if (!cust) {
+                triggerCharacterSpeech('bago', "હમણાં કોઈ નવો ગ્રાહક પેકિંગ માટે રાહ નથી જોતો! પહેલા ગ્રાહક બોલાવો.");
+                return;
+            }
+
+            bagoChar.userData.actionTimer = 1.0;
+            cust.mesh.userData.carryBox.visible = true;
+            cust.stage = 'to_nattu';
+            cust.targetPos = POS.nattuCustomerWait.clone();
+
+            const bagoText = `અરે ${cust.custName}, મેં તમને આ સામાન બોક્સમાં પેક કરી આપ્યો છે! હવે પાક્કા બિલ માટે નટુ કાકા પાસે જાવ.`;
+            triggerCharacterSpeech('bago', bagoText);
+            setStatusBanner(`📦 બાગો: "${bagoText}"`);
+            spawnFloatingReward(e, `📦 ${cust.product.name} પેક!`, '#10b981');
+            updateQueueBadges();
+        }
+
+        function actionNattuBill(e) {
+            const cust = customers.find(c => c.stage === 'wait_nattu');
+            if (!cust) {
+                triggerCharacterSpeech('nattu', "અરે બાપ રે! પહેલા બાગો પાસે માલ તો પેક કરાવો!");
+                return;
+            }
+
+            nattuChar.userData.actionTimer = 1.0;
+            const finalPrice = Math.round(cust.product.price * state.priceBonus);
+            cust.finalPrice = finalPrice;
+            cust.stage = 'to_ayaan';
+            cust.targetPos = POS.ayaanCustomerWait.clone();
+
+            speakText(`${cust.custName} બોલ્યા: નટુ કાકા, ફટાફટ અમારું બિલ બનાવી આપો ને!`);
+            setTimeout(() => {
+                const nattuText = `અરે બાપ રે! આ લો ${cust.custName}, તમારું ₹${finalPrice} નું પાક્કું બિલ તૈયાર છે!`;
+                triggerCharacterSpeech('nattu', nattuText);
+                setStatusBanner(`🧾 નટુ કાકા: "${nattuText}"`);
+            }, 2400);
+
+            spawnFloatingReward(e, `🧾 બિલ: ₹${finalPrice}`, '#f59e0b');
+            updateQueueBadges();
+        }
+
+        function actionAyaanPay(e) {
+            const cust = customers.find(c => c.stage === 'wait_ayaan');
+            if (!cust) {
+                triggerCharacterSpeech('ayaan', "નટુ કાકાનું બિલ લઈને ગ્રાહક આવે એટલે હું પેમેન્ટ સ્વીકારું!");
+                return;
+            }
+
+            ayaanChar.userData.actionTimer = 1.2;
+            const amount = cust.finalPrice || Math.round(cust.product.price * state.priceBonus);
+
+            state.cash += amount;
+            state.stars += 1;
+            state.servedCount += 1;
+            state.level = Math.floor(state.servedCount / 5) + 1;
+
+            cust.stage = 'leaving';
+            cust.targetPos = POS.exit.clone();
+
+            spawn3DCoinBurst(POS.ayaanStation);
+
+            speakText(`${cust.custName} બોલ્યા: અયાન શેઠ, આ લો તમારા પૈસા અને અમારો સામાન કમ્પ્લેટ કરી આપો!`);
+            setTimeout(() => {
+                const ayaanText = `આ લો ${cust.custName}, તમારો સામાન અને બિલ એકદમ કમ્પ્લેટ છે!`;
+                triggerCharacterSpeech('ayaan', ayaanText);
+                setTimeout(() => { 
+                    speakText(`${cust.custName} બોલ્યા: થેંક્યુ અયાનભાઈ, તમારો શોરૂમ નંબર વન છે!`); 
+                }, 1800);
+            }, 2400);
+
+            setStatusBanner(`💰 અયાન શેઠે પેમેન્ટ લીધું! ગ્રાહક બોલી: "થેંક્યુ અયાનભાઈ!"`);
+            spawnFloatingReward(e, `+₹${amount} 🪙 ⭐`, '#2563eb');
+            updateHUD();
+            updateQueueBadges();
+        }
+
+        function spawn3DCoinBurst(origin) {
+            for (let i = 0; i < 7; i++) {
+                const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.06, 12), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+                coin.rotation.x = Math.PI / 2;
+                coin.position.set(origin.x, 2.3, origin.z);
+                scene.add(coin);
+                coinParticles.push({ mesh: coin, vx: (Math.random()-0.5)*0.14, vy: 0.14+Math.random()*0.08, vz: (Math.random()-0.5)*0.14, life: 1.0 });
+            }
+        }
+
+        function on3DCanvasTap(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            const intersects = raycaster.intersectObjects([bagoChar, nattuChar, ayaanChar], true);
+            if (intersects.length > 0) {
+                let obj = intersects[0].object;
+                while (obj.parent && !obj.userData.charName) obj = obj.parent;
+                const name = obj.userData.charName;
+                if (name === 'bago') actionBagoPack(event);
+                if (name === 'nattu') actionNattuBill(event);
+                if (name === 'ayaan') actionAyaanPay(event);
+            }
+        }
+
+        function focusCamera(preset) {
+            if (preset === 'overview') { camera.position.set(0, 12, 16); controls.target.set(0, 1.2, 0); }
+            else if (preset === 'bago') { camera.position.set(-1.0, 5.5, 5.0); controls.target.set(-4.2, 1.2, 0.2); }
+            else if (preset === 'nattu') { camera.position.set(1.5, 5.2, 2.5); controls.target.set(1.5, 1.2, -3.8); }
+            else if (preset === 'ayaan') { camera.position.set(1.0, 5.5, 5.5); controls.target.set(4.2, 1.2, 1.2); }
+            controls.update();
+        }
+
+        function toggleUpgradeModal() {
+            const modal = document.getElementById('upgrade-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) renderUpgrades();
+        }
+
+        function renderUpgrades() {
+            const list = document.getElementById('upgrade-list');
+            list.innerHTML = UPGRADES.map((u, i) => `
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center"><span class="font-extrabold text-indigo-800 text-sm">${u.icon} ${u.name}</span><span class="text-xs bg-indigo-200 px-2 py-0.5 rounded-full">Lv.${u.level}</span></div>
+                        <p class="text-xs text-slate-600 mt-1">${u.desc}</p>
+                    </div>
+                    <button onclick="buyUpgrade(${i})" ${state.cash < u.cost ? 'disabled' : ''} class="btn-cartoon mt-3 w-full bg-indigo-600 text-white font-extrabold text-xs py-2 rounded-xl">ખરીદો: ₹${u.cost}</button>
+                </div>
+            `).join('');
+        }
+
+        function buyUpgrade(idx) {
+            const u = UPGRADES[idx];
+            if (state.cash < u.cost) return;
+            state.cash -= u.cost; u.level += 1; u.cost = Math.round(u.cost * u.mult);
+            if (u.id === 'auto_bago') state.autoBago += 1;
+            if (u.id === 'auto_nattu') state.autoNattu += 1;
+            if (u.id === 'auto_ayaan') { state.autoAyaan += 1; state.priceBonus += 0.2; }
+            triggerCharacterSpeech('ayaan', `અભિનંદન! '${u.name}' અપગ્રેડ થઈ ગયું છે!`);
+            updateHUD(); renderUpgrades();
+        }
+
+        function update3DBubbles() {
+            const layer = document.getElementById('bubbles-layer');
+            let html = '';
+            const projectToScreen = (vec3) => {
+                const v = vec3.clone().project(camera);
+                if (v.z > 1) return null;
+                return { x: (v.x * 0.5 + 0.5) * window.innerWidth, y: (-v.y * 0.5 + 0.5) * window.innerHeight };
+            };
+
+            customers.forEach(c => {
+                if (c.stage === 'leaving') return;
+                const pos = projectToScreen(c.mesh.position.clone().add(new THREE.Vector3(0, 2.6, 0)));
+                if (!pos) return;
+                html += `
+                    <div class="bubble-3d bubble-arrow bg-white/95 border-2 border-sky-400 rounded-2xl px-3 py-1.5 shadow-lg text-center" style="left:${pos.x}px; top:${pos.y}px;">
+                        <div class="text-xs font-extrabold text-slate-800 whitespace-nowrap">${c.custName}: ${c.product.emoji} ${c.product.name}</div>
+                    </div>
+                `;
+            });
+
+            const chars = [
+                { key: 'bago', mesh: bagoChar, label: '👷🏽‍♂️ બાગો', border: 'border-emerald-500' },
+                { key: 'nattu', mesh: nattuChar, label: '👴🏻 નટુ કાકા', border: 'border-amber-500' },
+                { key: 'ayaan', mesh: ayaanChar, label: '👦🏻 અયાન શેઠ', border: 'border-blue-600' }
+            ];
+
+            chars.forEach(ch => {
+                const sp = activeSpeech[ch.key];
+                const pos = projectToScreen(ch.mesh.position.clone().add(new THREE.Vector3(0, 2.8, 0)));
+                if (!pos) return;
+                if (sp && sp.expires > Date.now()) {
+                    html += `
+                        <div class="bubble-3d bubble-arrow bg-white border-2 ${ch.border} rounded-2xl px-3 py-2 shadow-xl text-center" style="left:${pos.x}px; top:${pos.y}px;">
+                            <div class="text-[10px] font-extrabold text-indigo-700">${ch.label}</div>
+                            <div class="text-xs font-bold text-slate-800">${sp.text}</div>
+                        </div>
+                    `;
+                } else {
+                    html += `<div class="bubble-3d bg-slate-900/80 text-white rounded-full px-2.5 py-0.5 text-xs font-extrabold whitespace-nowrap" style="left:${pos.x}px; top:${pos.y}px;">${ch.label}</div>`;
+                }
+            });
+
+            layer.innerHTML = html;
+        }
+
+        function updateQueueBadges() {
+            const bagoCount = customers.filter(c => c.stage === 'wait_bago' || c.stage === 'to_bago').length;
+            const nattuCount = customers.filter(c => c.stage === 'wait_nattu').length;
+            const ayaanCount = customers.filter(c => c.stage === 'wait_ayaan').length;
+
+            const setBadge = (id, count) => {
+                const el = document.getElementById(id);
+                if (count > 0) { el.innerText = count; el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
+            };
+            setBadge('badge-bago', bagoCount);
+            setBadge('badge-nattu', nattuCount);
+            setBadge('badge-ayaan', ayaanCount);
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-cash').innerText = `₹ ${state.cash}`;
+            document.getElementById('hud-stars').innerText = state.stars;
+            document.getElementById('hud-served').innerText = state.servedCount;
+            document.getElementById('hud-level').innerText = state.level;
+        }
+
+        function setStatusBanner(msg) { document.getElementById('status-banner').innerText = msg; }
+
+        function spawnFloatingReward(e, text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-reward text-lg sm:text-2xl';
+            el.style.color = color; el.innerText = text;
+            const x = e && e.clientX ? e.clientX : window.innerWidth / 2;
+            const y = e && e.clientY ? e.clientY : window.innerHeight * 0.65;
+            el.style.left = `${x - 45}px`; el.style.top = `${y - 30}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function startGame() {
+            document.getElementById('welcome-modal').classList.add('hidden');
+            speakText("અયાન ઇલેક્ટ્રોનિક્સ શોરૂમમાં તમારું સ્વાગત છે! હવે તમે "+'+ નવો ગ્રાહક'+" દબાવીને ગ્રાહક બોલાવી શકો છો.");
+        }
+
+        setInterval(() => {
+            if (state.autoBago > 0 && customers.some(c => c.stage === 'wait_bago')) actionBagoPack(null);
+            if (state.autoNattu > 0 && customers.some(c => c.stage === 'wait_nattu')) actionNattuBill(null);
+            if (state.autoAyaan > 0 && customers.some(c => c.stage === 'wait_ayaan')) actionAyaanPay(null);
+        }, 2500);
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = clock.getDelta();
+            const t = clock.getElapsedTime();
+
+            controls.update();
+
+            [bagoChar, nattuChar, ayaanChar].forEach((char, idx) => {
+                if (!char) return;
+                const act = char.userData.actionTimer;
+                if (act > 0) {
+                    char.position.y = Math.abs(Math.sin(t * 18)) * 0.35;
+                    char.userData.rightArm.rotation.z = -2.2 + Math.sin(t * 25) * 0.5;
+                    char.userData.actionTimer = Math.max(0, act - dt);
+                } else {
+                    char.position.y = Math.abs(Math.sin(t * 3 + idx)) * 0.06;
+                    char.userData.rightArm.rotation.z = -0.25;
+                }
+            });
+
+            for (let i = customers.length - 1; i >= 0; i--) {
+                const c = customers[i];
+                const dist = c.mesh.position.distanceTo(c.targetPos);
+                if (dist > 0.12) {
+                    const dir = c.targetPos.clone().sub(c.mesh.position).normalize();
+                    c.mesh.position.add(dir.multiplyScalar(3.2 * dt));
+                    c.mesh.position.y = Math.abs(Math.sin(t * 10 + i)) * 0.1;
+                    c.mesh.lookAt(c.targetPos.x, c.mesh.position.y, c.targetPos.z);
+                } else {
+                    c.mesh.position.y = Math.abs(Math.sin(t * 3 + i)) * 0.04;
+                    if (c.stage === 'to_bago') { c.stage = 'wait_bago'; updateQueueBadges(); }
+                    else if (c.stage === 'to_nattu') { c.stage = 'wait_nattu'; updateQueueBadges(); }
+                    else if (c.stage === 'to_ayaan') { c.stage = 'wait_ayaan'; updateQueueBadges(); }
+                    else if (c.stage === 'leaving') { scene.remove(c.mesh); customers.splice(i, 1); }
+                }
+            }
+
+            for (let i = coinParticles.length - 1; i >= 0; i--) {
+                const p = coinParticles[i];
+                p.mesh.position.add(new THREE.Vector3(p.vx, p.vy, p.vz));
+                p.vy -= 0.008; p.life -= dt * 1.4;
+                if (p.life <= 0) { scene.remove(p.mesh); coinParticles.splice(i, 1); }
+            }
+
+            update3DBubbles();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = function () {
+            init3DShowroom();
+            updateHUD();
+            animate();
+        };
+    </script>
+</body>
+</html>
