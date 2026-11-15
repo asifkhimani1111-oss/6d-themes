@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ડબલ એ ગેમ 3D 6D - સ્પાઇડરમેન સુપર ફાઈટ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@700;800&family=Noto+Sans+Gujarati:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        html, body {
+            font-family: 'Baloo Bhai 2', 'Noto Sans Gujarati', sans-serif;
+            margin: 0; padding: 0; width: 100vw; height: 100dvh;
+            overflow: hidden; background: #050814; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #game-canvas { position: fixed; inset: 0; width: 100vw; height: 100dvh; z-index: 1; }
+        .btn-pad {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 3px solid rgba(255, 255, 255, 0.75);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.5), 0 0 18px rgba(239, 68, 68, 0.5);
+            transition: transform 0.08s;
+        }
+        .btn-pad:active, .btn-pad.pressed {
+            transform: translateY(4px) scale(0.94);
+            background: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+        }
+        .spider-glow {
+            text-shadow: 0 0 12px #ef4444, 0 0 24px #3b82f6, 2px 2px 0px #000;
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <div id="game-canvas"></div>
+
+    <!-- TOP HUD -->
+    <div class="fixed top-2 left-2 right-2 z-20 flex justify-between items-center pointer-events-none px-1">
+        <div class="bg-slate-900/85 border-2 border-red-500 rounded-2xl px-3 py-1 flex items-center gap-2 shadow-lg">
+            <span class="text-xl sm:text-2xl">🕷️</span>
+            <div>
+                <div class="text-xs sm:text-base font-extrabold text-red-400 leading-none">ડબલ એ ગેમ 3D 6D</div>
+                <div class="text-[10px] sm:text-xs text-sky-300 font-bold">સ્પાઇડરમેન મિશન <span id="hud-level">1</span></div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 sm:gap-2">
+            <div class="bg-slate-900/85 border-2 border-amber-400 rounded-2xl px-2.5 py-1 flex items-center gap-1 shadow-lg">
+                <span class="text-base sm:text-xl">💥</span>
+                <span id="hud-score" class="text-xs sm:text-lg font-extrabold text-amber-400">0</span>
+            </div>
+            <div class="bg-slate-900/85 border-2 border-rose-500 rounded-2xl px-2.5 py-1 flex items-center gap-1 shadow-lg">
+                <span id="hud-lives" class="text-xs sm:text-base">❤️❤️❤️</span>
+            </div>
+            <button onclick="toggle6D()" class="pointer-events-auto bg-gradient-to-r from-red-600 to-blue-600 border-2 border-white rounded-2xl px-2.5 py-1 text-[11px] sm:text-xs font-extrabold shadow-lg active:scale-95">
+                🌀 6D: <span id="txt-6d">ON</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- TOUCH CONTROLS (Mobile / Landscape Ready) -->
+    <div class="fixed bottom-3 left-3 right-3 z-20 flex justify-between items-end pointer-events-none">
+        <!-- Left & Right Run / Wall Climb -->
+        <div class="flex gap-2.5 sm:gap-3 pointer-events-auto">
+            <button id="btn-left" class="btn-pad w-15 h-15 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-white">◀</button>
+            <button id="btn-right" class="btn-pad w-15 h-15 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-extrabold text-white">▶</button>
+        </div>
+
+        <!-- Action Buttons: Web Shoot, Punch/Kick Fight, High Jump -->
+        <div class="flex gap-2 sm:gap-3 pointer-events-auto items-end">
+            <!-- Web Swing / Shoot -->
+            <button id="btn-web" class="btn-pad w-15 h-15 sm:w-18 sm:h-18 rounded-full bg-sky-500/40 border-sky-300 flex flex-col items-center justify-center text-white">
+                <span class="text-xl sm:text-2xl">🕸️</span>
+                <span class="text-[9px] sm:text-[11px] font-extrabold">જાળું</span>
+            </button>
+
+            <!-- Punch / Kick Fight -->
+            <button id="btn-fight" class="btn-pad w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600/50 border-red-300 flex flex-col items-center justify-center text-white">
+                <span class="text-2xl sm:text-3xl">👊</span>
+                <span class="text-[9px] sm:text-[11px] font-extrabold">ફાઈટ</span>
+            </button>
+
+            <!-- Jump / Wall Climb -->
+            <button id="btn-jump" class="btn-pad w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-emerald-500/45 border-emerald-300 flex flex-col items-center justify-center text-white">
+                <span class="text-2xl sm:text-3xl">▲</span>
+                <span class="text-[10px] sm:text-xs font-extrabold">કૂદકો</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- START / LEVEL WIN / GAME OVER MODAL -->
+    <div id="modal-screen" class="fixed inset-0 z-30 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-gradient-to-b from-red-950 via-slate-900 to-blue-950 border-4 border-red-500 rounded-3xl max-w-md w-full p-5 sm:p-6 text-center shadow-2xl">
+            <div id="modal-icon" class="text-5xl sm:text-6xl mb-2">🕷️👊🕸️</div>
+            <h1 id="modal-title" class="text-2xl sm:text-4xl font-extrabold text-white spider-glow mb-2">ડબલ એ ગેમ 3D 6D</h1>
+            <p id="modal-sub" class="text-xs sm:text-sm text-sky-200 font-bold mb-4">
+                અસલી સ્પાઇડરમેન બનીને દોડો, ઊંચી દીવાલો પર ચડો, 🕸️ જાળું ફેંકીને ઉડો અને 👊 મુક્કા-લાતથી વિલન રોબોટ્સને હરાવો!
+            </p>
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-red-600 to-blue-600 border-2 border-white text-white font-extrabold text-lg sm:text-xl py-3 rounded-2xl shadow-xl active:scale-95">
+                સ્પાઇડરમેન એક્શન શરૂ કરો! 🕷️🔥
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. WEB AUDIO SOUND EFFECTS (Punch, Web, Jump)
+        // ==========================================
+        let audioCtx = null;
+        function sfx(type) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const t = audioCtx.currentTime;
+
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(240, t);
+                    osc.frequency.exponentialRampToValueAtTime(620, t + 0.16);
+                    gain.gain.setValueAtTime(0.18, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.18);
+                    osc.start(t); osc.stop(t + 0.18);
+                } else if (type === 'web') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(850, t);
+                    osc.frequency.exponentialRampToValueAtTime(300, t + 0.14);
+                    gain.gain.setValueAtTime(0.22, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+                    osc.start(t); osc.stop(t + 0.15);
+                } else if (type === 'punch') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(160, t);
+                    osc.frequency.exponentialRampToValueAtTime(45, t + 0.14);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+                    osc.start(t); osc.stop(t + 0.15);
+                } else if (type === 'hurt') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(120, t);
+                    osc.frequency.linearRampToValueAtTime(40, t + 0.35);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.36);
+                    osc.start(t); osc.stop(t + 0.36);
+                } else if (type === 'win') {
+                    osc.type = 'square';
+                    [440, 554, 659, 880].forEach((f, i) => osc.frequency.setValueAtTime(f, t + i * 0.1));
+                    gain.gain.setValueAtTime(0.2, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                    osc.start(t); osc.stop(t + 0.5);
+                }
+            } catch (e) {}
+        }
+
+        // ==========================================
+        // 2. THREE.JS 3D CITY & SPIDER-MAN SETUP
+        // ==========================================
+        let scene, camera, renderer;
+        let spiderman, rightArm, leftArm, rightLeg, leftLeg;
+        let playerVel = new THREE.Vector3();
+        let isGrounded = false, isOnWall = false, jumpCount = 0;
+
+        let buildings = [], walls = [], enemies = [], webShots = [], webLines = [], particles = [], tokens = [];
+        let bossHeli = null;
+
+        const state = {
+            playing: false,
+            level: 1,
+            score: 0,
+            lives: 3,
+            mode6D: true,
+            shake: 0,
+            punchTimer: 0,
+            webSwingTimer: 0
+        };
+
+        const input = { left: false, right: false };
+
+        function init3D() {
+            const container = document.getElementById('game-canvas');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x070b19);
+            scene.fog = new THREE.FogExp2(0x070b19, 0.014);
+
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 160);
+            camera.position.set(0, 6, 14);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const hemi = new THREE.HemisphereLight(0x93c5fd, 0x1e1b4b, 0.95);
+            scene.add(hemi);
+
+            const dir = new THREE.DirectionalLight(0xffffff, 1.1);
+            dir.position.set(18, 28, 20);
+            dir.castShadow = true;
+            scene.add(dir);
+
+            buildCityBackground();
+            createSpiderMan();
+            bindControls();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        function buildCityBackground() {
+            // Distant glowing night skyscrapers
+            for (let i = -2; i < 24; i++) {
+                const h = 12 + (i % 5) * 4;
+                const b = new THREE.Mesh(
+                    new THREE.BoxGeometry(5, h, 4),
+                    new THREE.MeshToonMaterial({ color: i % 2 === 0 ? 0x1e293b : 0x0f172a })
+                );
+                b.position.set(i * 8, h / 2 - 4, -14 - (i % 3) * 3);
+                scene.add(b);
+            }
+        }
+
+        function createSpiderMan() {
+            spiderman = new THREE.Group();
+
+            // Red & Blue Spider-Suit Torso
+            const chest = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.42, 0.36, 0.85, 16),
+                new THREE.MeshToonMaterial({ color: 0xdc2626 }) // Bright Spider Red
+            );
+            chest.position.y = 1.05;
+            chest.castShadow = true;
+
+            // Blue Waist / Hips
+            const hips = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.36, 0.38, 0.32, 16),
+                new THREE.MeshToonMaterial({ color: 0x1d4ed8 }) // Spider Blue
+            );
+            hips.position.y = 0.55;
+
+            // Spider Emblem on Chest
+            const emblem = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 8, 8),
+                new THREE.MeshBasicMaterial({ color: 0x0f172a })
+            );
+            emblem.position.set(0.38, 1.12, 0);
+
+            // Spider-Man Mask Head
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.42, 20, 20),
+                new THREE.MeshToonMaterial({ color: 0xdc2626 })
+            );
+            head.position.y = 1.75;
+
+            // Iconic White Spider-Eyes with Black Border
+            const eyeGeo = new THREE.BoxGeometry(0.14, 0.16, 0.22);
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const eye1 = new THREE.Mesh(eyeGeo, eyeMat);
+            eye1.position.set(0.34, 1.78, 0.16);
+            eye1.rotation.y = 0.3;
+            eye1.rotation.z = -0.25;
+
+            const eye2 = new THREE.Mesh(eyeGeo, eyeMat);
+            eye2.position.set(0.34, 1.78, -0.16);
+            eye2.rotation.y = -0.3;
+            eye2.rotation.z = -0.25;
+
+            // Arms
+            const armGeo = new THREE.CylinderGeometry(0.11, 0.1, 0.72, 10);
+            const armMat = new THREE.MeshToonMaterial({ color: 0xdc2626 });
+            rightArm = new THREE.Mesh(armGeo, armMat);
+            rightArm.position.set(0, 1.05, 0.52);
+
+            leftArm = new THREE.Mesh(armGeo, armMat);
+            leftArm.position.set(0, 1.05, -0.52);
+
+            // Legs (Blue with Red Boots)
+            const legGeo = new THREE.CylinderGeometry(0.13, 0.11, 0.65, 10);
+            const legMat = new THREE.MeshToonMaterial({ color: 0x1d4ed8 });
+            rightLeg = new THREE.Mesh(legGeo, legMat);
+            rightLeg.position.set(0, 0.32, 0.18);
+
+            leftLeg = new THREE.Mesh(legGeo, legMat);
+            leftLeg.position.set(0, 0.32, -0.18);
+
+            spiderman.add(chest, hips, emblem, head, eye1, eye2, rightArm, leftArm, rightLeg, leftLeg);
+            scene.add(spiderman);
+        }
+
+        function clearWorld() {
+            [...buildings, ...walls, ...enemies, ...webShots, ...webLines, ...tokens].forEach(o => scene.remove(o.mesh || o));
+            if (bossHeli) scene.remove(bossHeli);
+            buildings = []; walls = []; enemies = []; webShots = []; webLines = []; tokens = [];
+        }
+
+        function buildLevel(lvl) {
+            clearWorld();
+            const diff = 1 + (lvl - 1) * 0.15;
+
+            // Rooftop Buildings (Platforms)
+            const roofs = [
+                { x: 0, y: -1, w: 16, h: 2, color: 0x334155 },
+                { x: 18, y: 0.5, w: 12, h: 2, color: 0x1e3a8a },
+                { x: 35, y: 2.5, w: 14, h: 2, color: 0x312e81 },
+                { x: 54, y: 1.0, w: 15, h: 2, color: 0x334155 },
+                { x: 74, y: 3.5, w: 14, h: 2, color: 0x1e3a8a },
+                { x: 94, y: 1.5, w: 18, h: 2, color: 0x0f172a } // Final Boss Helipad
+            ];
+
+            roofs.forEach((r, i) => {
+                const mesh = new THREE.Mesh(
+                    new THREE.BoxGeometry(r.w, r.h, 4.2),
+                    new THREE.MeshToonMaterial({ color: r.color })
+                );
+                mesh.position.set(r.x, r.y, 0);
+                mesh.receiveShadow = true;
+                scene.add(mesh);
+                buildings.push({ mesh, x: r.x, y: r.y, w: r.w, h: r.h });
+
+                // Spider Tokens on Rooftops
+                for (let tx = -r.w / 2 + 2; tx <= r.w / 2 - 2; tx += 3) {
+                    if (i === 0 && tx < 2) continue;
+                    const tok = new THREE.Mesh(
+                        new THREE.OctahedronGeometry(0.45),
+                        new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xd97706, emissiveIntensity: 0.5 })
+                    );
+                    tok.position.set(r.x + tx, r.y + r.h / 2 + 1.3, 0);
+                    scene.add(tok);
+                    tokens.push({ mesh: tok, taken: false });
+                }
+
+                // Add Villain Robots on Rooftops to Fight!
+                if (i > 0 && i < roofs.length - 1) {
+                    spawnVillain(r.x, r.y + r.h / 2, r.x - r.w / 2 + 1, r.x + r.w / 2 - 1, 2.6 * diff, false);
+                }
+            });
+
+            // Vertical Skyscraper Walls for Spider-Man Wall-Climbing!
+            const climbWalls = [
+                { x: 10.5, y: 3.5, w: 1.2, h: 8.5 },
+                { x: 26.5, y: 5.0, w: 1.2, h: 9.0 },
+                { x: 64.5, y: 5.5, w: 1.2, h: 9.5 }
+            ];
+
+            climbWalls.forEach(w => {
+                const wallMesh = new THREE.Mesh(
+                    new THREE.BoxGeometry(w.w, w.h, 3.8),
+                    new THREE.MeshToonMaterial({ color: 0x0284c7 })
+                );
+                wallMesh.position.set(w.x, w.y, 0);
+                scene.add(wallMesh);
+                walls.push({ mesh: wallMesh, x: w.x, y: w.y, w: w.w, h: w.h });
+            });
+
+            // Final Boss Villain + Escape Chopper at x = 96
+            spawnVillain(93, 2.5, 88, 98, 3.5 * diff, true);
+
+            bossHeli = new THREE.Group();
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.8, 2.0), new THREE.MeshToonMaterial({ color: 0xef4444 }));
+            cabin.position.y = 3.6;
+            const rotor = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.12, 0.4), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+            rotor.position.y = 4.7;
+            bossHeli.add(cabin, rotor);
+            bossHeli.userData.rotor = rotor;
+            bossHeli.position.set(98, 0, 0);
+            scene.add(bossHeli);
+
+            // Reset Spider-Man
+            spiderman.position.set(-4, 2, 0);
+            playerVel.set(0, 0, 0);
+            jumpCount = 0;
+        }
+
+        function spawnVillain(x, y, minX, maxX, speed, isBoss) {
+            const vGroup = new THREE.Group();
+            const scale = isBoss ? 1.55 : 1.05;
+            const body = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.45, 0.5, 1.1, 12),
+                new THREE.MeshToonMaterial({ color: isBoss ? 0x7e22ce : 0x16a34a }) // Goblin Green / Boss Purple
+            );
+            body.position.y = 0.65;
+
+            const head = new THREE.Mesh(
+                new THREE.BoxGeometry(0.7, 0.7, 0.7),
+                new THREE.MeshToonMaterial({ color: 0xfacc15 })
+            );
+            head.position.y = 1.5;
+
+            const visor = new THREE.Mesh(
+                new THREE.BoxGeometry(0.75, 0.2, 0.5),
+                new THREE.MeshBasicMaterial({ color: 0xef4444 })
+            );
+            visor.position.set(0, 1.52, 0);
+
+            vGroup.add(body, head, visor);
+            vGroup.scale.setScalar(scale);
+            vGroup.position.set(x, y, 0);
+            scene.add(vGroup);
+
+            enemies.push({
+                mesh: vGroup,
+                minX, maxX, speed,
+                dir: -1,
+                hp: isBoss ? 3 : 1,
+                isBoss,
+                alive: true,
+                hitFlash: 0
+            });
+        }
+
+        function spawnEffect(pos, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                const p = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.24, 0.24, 0.24),
+                    new THREE.MeshBasicMaterial({ color })
+                );
+                p.position.copy(pos);
+                scene.add(p);
+                particles.push({
+                    mesh: p,
+                    vel: new THREE.Vector3((Math.random() - 0.5) * 9, Math.random() * 8 + 2, (Math.random() - 0.5) * 9),
+                    life: 0.55
+                });
+            }
+        }
+
+        // ==========================================
+        // 3. SPIDER-MAN ACTIONS (Jump, Wall Climb, Web, Fight)
+        // ==========================================
+        function doJump() {
+            if (!state.playing) return;
+            if (isGrounded || isOnWall || jumpCount < 2) {
+                playerVel.y = isOnWall ? 14.5 : (jumpCount === 0 ? 13.8 : 12.2);
+                if (isOnWall) {
+                    // Wall jump kick-off
+                    const dir = spiderman.rotation.y === 0 ? -1 : 1;
+                    playerVel.x = dir * 9.5;
+                    spiderman.rotation.y = dir > 0 ? 0 : Math.PI;
+                }
+                isGrounded = false;
+                isOnWall = false;
+                jumpCount++;
+                sfx('jump');
+                if (state.mode6D) state.shake = 0.08;
+            }
+        }
+
+        function doWebShootAndSwing() {
+            if (!state.playing) return;
+            sfx('web');
+            const dir = spiderman.rotation.y === 0 ? 1 : -1;
+
+            // 1. Shoot White Web Projectile forward to stun/hit villains!
+            const webBall = new THREE.Mesh(
+                new THREE.SphereGeometry(0.32, 10, 10),
+                new THREE.MeshBasicMaterial({ color: 0xffffff })
+            );
+            webBall.position.set(spiderman.position.x + dir * 0.8, spiderman.position.y + 1.2, 0);
+            scene.add(webBall);
+            webShots.push({ mesh: webBall, vx: dir * 24, life: 0.7 });
+
+            // 2. If in air, Web-Swing boost upward & forward!
+            if (!isGrounded) {
+                playerVel.y = 11.0;
+                playerVel.x = dir * 13.5;
+                state.webSwingTimer = 0.35;
+
+                // Visual Web Rope to Sky
+                const ropeGeo = new THREE.CylinderGeometry(0.05, 0.05, 8, 6);
+                const rope = new THREE.Mesh(ropeGeo, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                rope.position.set(spiderman.position.x + dir * 2.5, spiderman.position.y + 4.5, 0);
+                rope.rotation.z = -dir * 0.45;
+                scene.add(rope);
+                webLines.push({ mesh: rope, life: 0.25 });
+            }
+            if (state.mode6D) state.shake = 0.1;
+        }
+
+        function doSpiderFight() {
+            if (!state.playing) return;
+            sfx('punch');
+            state.punchTimer = 0.25;
+            const dir = spiderman.rotation.y === 0 ? 1 : -1;
+            playerVel.x = dir * 11; // Lunge punch!
+
+            // Hit nearby enemies in melee range
+            const punchCenter = new THREE.Vector3(spiderman.position.x + dir * 1.3, spiderman.position.y + 1.0, 0);
+            spawnEffect(punchCenter, 0x38bdf8, 6);
+
+            enemies.forEach(en => {
+                if (!en.alive) return;
+                if (punchCenter.distanceTo(en.mesh.position.clone().add(new THREE.Vector3(0, 0.8, 0))) < 2.2) {
+                    damageVillain(en, dir);
+                }
+            });
+            if (state.mode6D) state.shake = 0.15;
+        }
+
+        function damageVillain(en, hitDir) {
+            en.hp -= 1;
+            en.hitFlash = 0.2;
+            en.mesh.position.x += hitDir * 1.2;
+            spawnEffect(en.mesh.position.clone().add(new THREE.Vector3(0, 1, 0)), 0xfacc15, 12);
+
+            if (en.hp <= 0) {
+                en.alive = false;
+                en.mesh.visible = false;
+                state.score += en.isBoss ? 500 : 100;
+                updateHUD();
+                if (state.mode6D) state.shake = 0.25;
+            }
+        }
+
+        function toggle6D() {
+            state.mode6D = !state.mode6D;
+            document.getElementById('txt-6d').innerText = state.mode6D ? 'ON' : 'OFF';
+        }
+
+        function bindControls() {
+            window.addEventListener('keydown', e => {
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = true;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = true;
+                if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') doJump();
+                if (e.code === 'KeyZ' || e.code === 'KeyJ') doSpiderFight();
+                if (e.code === 'KeyX' || e.code === 'KeyK') doWebShootAndSwing();
+            });
+            window.addEventListener('keyup', e => {
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = false;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = false;
+            });
+
+            const hold = (id, prop) => {
+                const el = document.getElementById(id);
+                el.addEventListener('pointerdown', e => { e.preventDefault(); input[prop] = true; el.classList.add('pressed'); });
+                const up = e => { e.preventDefault(); input[prop] = false; el.classList.remove('pressed'); };
+                el.addEventListener('pointerup', up);
+                el.addEventListener('pointerleave', up);
+                el.addEventListener('pointercancel', up);
+            };
+            hold('btn-left', 'left');
+            hold('btn-right', 'right');
+
+            document.getElementById('btn-jump').addEventListener('pointerdown', e => { e.preventDefault(); doJump(); });
+            document.getElementById('btn-web').addEventListener('pointerdown', e => { e.preventDefault(); doWebShootAndSwing(); });
+            document.getElementById('btn-fight').addEventListener('pointerdown', e => { e.preventDefault(); doSpiderFight(); });
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-level').innerText = state.level;
+            document.getElementById('hud-score').innerText = state.score;
+            document.getElementById('hud-lives').innerText = '❤️'.repeat(Math.max(0, state.lives));
+        }
+
+        function startGame() {
+            document.getElementById('modal-screen').classList.add('hidden');
+            if (state.lives <= 0) {
+                state.lives = 3;
+                state.score = 0;
+                state.level = 1;
+            }
+            updateHUD();
+            buildLevel(state.level);
+            state.playing = true;
+        }
+
+        function openModal(title, sub, icon) {
+            state.playing = false;
+            document.getElementById('modal-icon').innerText = icon;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-sub').innerText = sub;
+            document.getElementById('modal-screen').classList.remove('hidden');
+        }
+
+        // ==========================================
+        // 4. MAIN 3D / 6D ANIMATION & PHYSICS LOOP
+        // ==========================================
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = Math.min(clock.getDelta(), 0.05);
+            const t = clock.getElapsedTime();
+
+            if (bossHeli && bossHeli.userData.rotor) {
+                bossHeli.userData.rotor.rotation.y += 18 * dt;
+            }
+
+            if (state.playing) {
+                // Horizontal Run
+                const runSpeed = 9.5;
+                let dir = 0;
+                if (input.left) dir -= 1;
+                if (input.right) dir += 1;
+
+                if (dir !== 0) {
+                    playerVel.x = dir * runSpeed;
+                    spiderman.rotation.y = dir > 0 ? 0 : Math.PI;
+                } else {
+                    playerVel.x *= 0.82;
+                }
+
+                // Gravity (Slower slide when clinging to a wall!)
+                if (isOnWall && playerVel.y < 0) {
+                    playerVel.y = -2.2; // Spider-Man Wall Cling & Climb!
+                } else {
+                    playerVel.y -= 31.0 * dt;
+                }
+
+                spiderman.position.x += playerVel.x * dt;
+                spiderman.position.y += playerVel.y * dt;
+
+                // Rooftop Floor Collisions
+                isGrounded = false;
+                buildings.forEach(b => {
+                    const halfW = b.w / 2 + 0.35;
+                    const topY = b.y + b.h / 2;
+                    if (Math.abs(spiderman.position.x - b.x) < halfW) {
+                        if (playerVel.y <= 0 && spiderman.position.y >= topY - 0.35 && spiderman.position.y <= topY + 0.3) {
+                            spiderman.position.y = topY;
+                            playerVel.y = 0;
+                            isGrounded = true;
+                            jumpCount = 0;
+                        }
+                    }
+                });
+
+                // Vertical Wall Climbing Detection!
+                isOnWall = false;
+                walls.forEach(w => {
+                    const dx = Math.abs(spiderman.position.x - w.x);
+                    const dy = Math.abs((spiderman.position.y + 0.9) - w.y);
+                    if (dx < w.w / 2 + 0.45 && dy < w.h / 2) {
+                        isOnWall = true;
+                        jumpCount = 0;
+                        // Push slightly outside wall so Spider-Man climbs vertically
+                        if (spiderman.position.x < w.x) spiderman.position.x = w.x - (w.w / 2 + 0.42);
+                        else spiderman.position.x = w.x + (w.w / 2 + 0.42);
+
+                        // If holding direction toward wall, climb UP the wall!
+                        if ((input.right && spiderman.position.x < w.x) || (input.left && spiderman.position.x > w.x)) {
+                            playerVel.y = 7.5;
+                        }
+                    }
+                });
+
+                // Spider-Man Limb Animations (Running, Punching, Wall-Climbing)
+                if (state.punchTimer > 0) {
+                    state.punchTimer -= dt;
+                    rightArm.rotation.z = -Math.PI / 2;
+                    rightArm.position.x = 0.45;
+                } else if (isOnWall) {
+                    rightArm.rotation.z = -2.4 + Math.sin(t * 16) * 0.4;
+                    leftArm.rotation.z = -2.4 - Math.sin(t * 16) * 0.4;
+                } else if (Math.abs(playerVel.x) > 1 && isGrounded) {
+                    rightLeg.rotation.z = Math.sin(t * 16) * 0.7;
+                    leftLeg.rotation.z = -Math.sin(t * 16) * 0.7;
+                    rightArm.rotation.z = -Math.sin(t * 16) * 0.7;
+                    leftArm.rotation.z = Math.sin(t * 16) * 0.7;
+                    rightArm.position.x = 0;
+                } else {
+                    rightLeg.rotation.z = 0; leftLeg.rotation.z = 0;
+                    rightArm.rotation.z = 0; leftArm.rotation.z = 0;
+                    rightArm.position.x = 0;
+                }
+
+                // Web Projectiles Update
+                for (let i = webShots.length - 1; i >= 0; i--) {
+                    const ws = webShots[i];
+                    ws.mesh.position.x += ws.vx * dt;
+                    ws.life -= dt;
+                    let hit = false;
+                    enemies.forEach(en => {
+                        if (en.alive && ws.mesh.position.distanceTo(en.mesh.position.clone().add(new THREE.Vector3(0, 0.9, 0))) < 1.3) {
+                            damageVillain(en, ws.vx > 0 ? 1 : -1);
+                            hit = true;
+                        }
+                    });
+                    if (hit || ws.life <= 0) {
+                        scene.remove(ws.mesh);
+                        webShots.splice(i, 1);
+                    }
+                }
+
+                // Web Swing Ropes Cleanup
+                for (let i = webLines.length - 1; i >= 0; i--) {
+                    webLines[i].life -= dt;
+                    if (webLines[i].life <= 0) {
+                        scene.remove(webLines[i].mesh);
+                        webLines.splice(i, 1);
+                    }
+                }
+
+                // Tokens Collection
+                tokens.forEach(tk => {
+                    if (tk.taken) return;
+                    tk.mesh.rotation.y += 3.5 * dt;
+                    if (spiderman.position.distanceTo(tk.mesh.position) < 1.4) {
+                        tk.taken = true;
+                        tk.mesh.visible = false;
+                        state.score += 25;
+                        updateHUD();
+                        sfx('jump');
+                        spawnEffect(tk.mesh.position, 0xfacc15, 6);
+                    }
+                });
+
+                // Villains AI & Combat
+                enemies.forEach(en => {
+                    if (!en.alive) return;
+                    en.mesh.position.x += en.dir * en.speed * dt;
+                    if (en.mesh.position.x > en.maxX) en.dir = -1;
+                    if (en.mesh.position.x < en.minX) en.dir = 1;
+
+                    const dx = Math.abs(spiderman.position.x - en.mesh.position.x);
+                    const dy = spiderman.position.y - en.mesh.position.y;
+
+                    // Jump-Stomp on Villain Head
+                    if (dx < 1.0 && dy > 0.5 && dy < 1.6 && playerVel.y < 0) {
+                        playerVel.y = 12.5;
+                        sfx('punch');
+                        damageVillain(en, spiderman.rotation.y === 0 ? 1 : -1);
+                    } else if (dx < 0.85 && Math.abs(dy) <= 0.6 && state.punchTimer <= 0) {
+                        // Villain Hits Spider-Man
+                        sfx('hurt');
+                        state.lives -= 1;
+                        updateHUD();
+                        if (state.mode6D) state.shake = 0.3;
+                        if (state.lives <= 0) {
+                            openModal("મિશન નિષ્ફળ! 💥", `તમારો સ્કોર: ${state.score}. ફરીથી સ્પાઇડરમેન બનીને લડો!`, "🕷️💔");
+                        } else {
+                            spiderman.position.set(-4, 2, 0);
+                            playerVel.set(0, 0, 0);
+                        }
+                    }
+                });
+
+                // Fall Off Building
+                if (spiderman.position.y < -8) {
+                    sfx('hurt');
+                    state.lives -= 1;
+                    updateHUD();
+                    if (state.lives <= 0) {
+                        openModal("નીચે પડી ગયા! 🏙️", `કુલ સ્કોર: ${state.score}. ફરીથી પ્રયત્ન કરો!`, "🕷️💥");
+                    } else {
+                        spiderman.position.set(-4, 2, 0);
+                        playerVel.set(0, 0, 0);
+                    }
+                }
+
+                // Mission Complete (Reach Chopper after defeating Boss)
+                const bossAlive = enemies.some(e => e.isBoss && e.alive);
+                if (spiderman.position.x >= 95 && !bossAlive) {
+                    sfx('win');
+                    const cleared = state.level;
+                    state.level += 1;
+                    openModal(`મિશન ${cleared} જીત્યા! 🏆`, `શાબાશ! સ્પાઇડરમેને બધા વિલનને હરાવી દીધા! હવે મિશન ${state.level} શરૂ થશે!`, "🕷️🎉👑");
+                }
+
+                // 3D / 6D Camera Follow
+                const targetX = spiderman.position.x + 3.5;
+                const targetY = Math.max(4.5, spiderman.position.y + 3.8);
+                camera.position.x += (targetX - camera.position.x) * 0.12;
+                camera.position.y += (targetY - camera.position.y) * 0.12;
+
+                if (state.mode6D) {
+                    camera.position.z = 13.0 + Math.sin(t * 2) * 0.5;
+                    camera.rotation.z = -playerVel.x * 0.0045;
+                    if (state.shake > 0) {
+                        state.shake -= dt;
+                        camera.position.x += (Math.random() - 0.5) * 0.5;
+                        camera.position.y += (Math.random() - 0.5) * 0.5;
+                    }
+                } else {
+                    camera.position.z = 13.5;
+                    camera.rotation.z = 0;
+                }
+                camera.lookAt(spiderman.position.x + 2.5, spiderman.position.y + 1.5, 0);
+            }
+
+            // Update Burst Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const pt = particles[i];
+                pt.mesh.position.addScaledVector(pt.vel, dt);
+                pt.vel.y -= 18 * dt;
+                pt.life -= dt;
+                if (pt.life <= 0) {
+                    scene.remove(pt.mesh);
+                    particles.splice(i, 1);
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = () => {
+            init3D();
+            animate();
+        };
+    </script>
+</body>
+</html>
