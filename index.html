@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087443">
+<title>K.H FRUITS</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f7f3;color:#19372a;font-family:Arial,sans-serif}
+header{background:linear-gradient(135deg,#075b37,#0b9959);color:white;padding:22px 17px 28px;border-radius:0 0 25px 25px}
+.brand{font-size:25px;font-weight:900}
+.sub{font-size:11px;letter-spacing:2px;margin-top:4px}
+.total{margin-top:22px;font-size:12px;opacity:.85}
+.total strong{display:block;font-size:38px;margin-top:5px}
+main{max-width:650px;margin:auto;padding:15px 13px 90px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:white;padding:15px;border-radius:15px;box-shadow:0 3px 12px #00000008}
+.stat small{color:#718078}
+.stat strong{display:block;font-size:23px;margin-top:7px}
+.green{color:#07864b}.red{color:#d8323c}
+.head{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px}
+.head h3{margin:0;font-size:18px}
+button{font-family:inherit;cursor:pointer}
+.add{background:#087443;color:white;border:0;padding:11px 14px;border-radius:11px;font-weight:bold}
+.search,input,textarea{font-size:15px}
+.search{width:100%;padding:13px;border:1px solid #dce8df;border-radius:12px;background:white}
+.person{background:white;border-radius:16px;padding:14px;margin:11px 0;box-shadow:0 3px 12px #00000009}
+.person-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.name{font-size:17px;font-weight:800}
+.balance{font-size:23px;font-weight:900}
+.buttons{display:flex;gap:9px;margin-top:13px}
+.plus,.minus{flex:1;border:0;color:white;padding:13px;border-radius:11px;font-size:19px;font-weight:900}
+.plus{background:#078b4d}.minus{background:#d93640}
+.small{border:0;background:#eaf3ed;color:#087443;padding:8px 10px;border-radius:8px;font-weight:bold}
+.history{margin-top:11px;border-top:1px solid #edf1ee;padding-top:10px}
+.history-row{display:flex;justify-content:space-between;padding:8px 0;font-size:13px;border-bottom:1px solid #f0f3f1}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:10;align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.sheet{background:white;width:100%;max-width:550px;border-radius:22px 22px 0 0;padding:20px;max-height:85vh;overflow:auto}
+.sheet h3{margin-top:0}
+label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
+input,textarea{width:100%;padding:13px;border:1px solid #dce8df;border-radius:10px}
+textarea{min-height:65px}
+.save{width:100%;background:#087443;color:white;border:0;border-radius:11px;padding:14px;margin-top:16px;font-weight:bold}
+.close{float:right;border:0;border-radius:50%;padding:8px 12px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e4ece6;display:flex;justify-content:space-around;padding:13px}
+.nav button{border:0;background:none;color:#087443;font-weight:bold}
+.empty{text-align:center;color:#829087;padding:25px}
+@media(min-width:600px){.modal{align-items:center}.sheet{border-radius:20px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand">K.H FRUITS</div>
+ <div class="sub">CRATE ACCOUNT BOOK · OFFLINE</div>
+ <div class="total">કુલ ક્રેટ બેલેન્સ<strong id="totalBalance">0</strong></div>
+</header>
+
+<main>
+ <div class="stats">
+  <div class="stat"><small>કુલ PLUS (+)</small><strong class="green" id="totalPlus">0</strong></div>
+  <div class="stat"><small>કુલ MINUS (−)</small><strong class="red" id="totalMinus">0</strong></div>
+ </div>
+
+ <div class="head">
+  <h3>વેપારીઓની યાદી</h3>
+  <button class="add" onclick="openAdd()">＋ ઉમેરો</button>
+ </div>
+ <input class="search" id="search" placeholder="વેપારીનું નામ શોધો..." oninput="render()">
+ <div id="people"></div>
+
+ <div class="head"><h3>બેકઅપ</h3></div>
+ <div class="person">
+  <p>તમારા મોબાઇલમાં સાચવેલો બધો હિસાબ બેકઅપ કરો.</p>
+  <button class="add" onclick="backup()">બેકઅપ ડાઉનલોડ</button>
+  <label>બેકઅપ ફાઇલ પસંદ કરો</label>
+  <input type="file" id="backupFile" accept=".json">
+  <button class="save" onclick="restore()">બેકઅપ રિસ્ટોર</button>
+ </div>
+ <p style="font-size:12px;color:#718078">ડેટા આ મોબાઇલમાં જ સેવ થાય છે. બ્રાઉઝરનો ડેટા સાફ થાય તો હિસાબ ગુમાઈ શકે છે. બેકઅપ રાખવો જરૂરી છે.</p>
+</main>
+
+<div class="nav">
+ <button onclick="window.scrollTo({top:0,behavior:'smooth'})">⌂ હોમ</button>
+ <button onclick="backup()">⬇ બેકઅપ</button>
+</div>
+
+<div class="modal" id="addModal">
+ <div class="sheet">
+  <button class="close" onclick="closeModal()">✕</button>
+  <h3 id="modalTitle">નવો વેપારી</h3>
+  <form id="personForm">
+   <input type="hidden" id="personId">
+   <label>વેપારીનું નામ *</label>
+   <input id="personName" maxlength="80" required placeholder="કોઈપણ નામ લખો">
+   <button class="save" type="submit">સેવ કરો</button>
+  </form>
+ </div>
+</div>
+
+<div class="modal" id="qtyModal">
+ <div class="sheet">
+  <button class="close" onclick="closeQty()">✕</button>
+  <h3 id="qtyTitle">ક્રેટની સંખ્યા</h3>
+  <form id="qtyForm">
+   <input type="hidden" id="qtyPerson">
+   <input type="hidden" id="qtyType">
+   <label>ક્રેટની સંખ્યા લખો</label>
+   <input id="qtyNumber" type="number" min="1" step="1" required placeholder="ઉદાહરણ: 20">
+   <label>તારીખ</label>
+   <input id="qtyDate" type="date" required>
+   <label>નોંધ (વૈકલ્પિક)</label>
+   <textarea id="qtyNote" placeholder="નોંધ લખો"></textarea>
+   <button class="save" type="submit">હિસાબ સેવ કરો</button>
+  </form>
+ </div>
+</div>
+
+<script>
+const KEY="kh_fruits_plus_minus_v1";
+let db={people:[],entries:[]};
+let openHistory={};
+
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function today(){
+ const d=new Date();
+ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function esc(s){
+ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function save(){
+ try{localStorage.setItem(KEY,JSON.stringify(db))}
+ catch(e){alert("મોબાઇલ સ્ટોરેજ ભરાઈ ગયું છે. બેકઅપ લો.")}
+}
+function load(){
+ try{
+  const x=JSON.parse(localStorage.getItem(KEY)||"null");
+  if(x&&Array.isArray(x.people)&&Array.isArray(x.entries))db=x;
+ }catch(e){alert("ડેટા વાંચી શકાયો નથી. બેકઅપ ફાઇલ હોય તો રિસ્ટોર કરો.")}
+}
+function entriesFor(pid){return db.entries.filter(x=>x.person===pid)}
+function sums(pid){
+ const a=entriesFor(pid);
+ let plus=0,minus=0;
+ a.forEach(x=>{if(x.type==="PLUS")plus+=Number(x.qty);else minus+=Number(x.qty)});
+ return {plus,minus,balance:plus-minus};
+}
+function render(){
+ let plus=0,minus=0;
+ db.entries.forEach(x=>{if(x.type==="PLUS")plus+=Number(x.qty);else minus+=Number(x.qty)});
+ document.getElementById("totalPlus").textContent=plus;
+ document.getElementById("totalMinus").textContent=minus;
+ document.getElementById("totalBalance").textContent=plus-minus;
+
+ const q=document.getElementById("search").value.toLowerCase();
+ const list=db.people.filter(p=>!p.archived&&p.name.toLowerCase().includes(q));
+ const box=document.getElementById("people");
+ if(!list.length){box.innerHTML='<div class="empty">કોઈ વેપારી નથી. ＋ ઉમેરો દબાવી નામ લખો.</div>';return}
+ box.innerHTML=list.map(p=>{
+  const s=sums(p.id);
+  const history=entriesFor(p.id).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  return `<div class="person">
+   <div class="person-top">
+    <div><div class="name">${esc(p.name)}</div>
+     <div style="font-size:12px;color:#829087;margin-top:5px">PLUS ${s.plus} · MINUS ${s.minus}</div>
+    </div>
+    <div class="balance ${s.balance>=0?'green':'red'}">${s.balance}</div>
+   </div>
+   <div class="buttons">
+    <button class="plus" onclick="openQty('${p.id}','PLUS')">＋</button>
+    <button class="minus" onclick="openQty('${p.id}','MINUS')">−</button>
+   </div>
+   <div class="buttons">
+    <button class="small" onclick="editPerson('${p.id}')">નામ એડિટ</button>
+    <button class="small" onclick="toggleHistory('${p.id}')">ખાતાવહી ${openHistory[p.id]?'છુપાવો':'જુઓ'}</button>
+    <button class="small" onclick="archivePerson('${p.id}')">આર્કાઇવ</button>
+   </div>
+   ${openHistory[p.id]?`<div class="history">
+    ${history.length?history.map(x=>`
+     <div class="history-row">
+      <div><b class="${x.type==='PLUS'?'green':'red'}">${x.type==='PLUS'?'PLUS +':'MINUS −'} ${x.qty}</b>
+       <div style="color:#829087;margin-top:4px">${esc(x.date)} ${x.note?'· '+esc(x.note):''}</div>
+      </div>
+      <div>
+       <button class="small" onclick="editEntry('${x.id}')">એડિટ</button>
+       <button class="small" onclick="deleteEntry('${x.id}')">ડિલીટ</button>
+      </div>
+     </div>`).join(""):'<div class="empty">હજુ કોઈ એન્ટ્રી નથી.</div>'}
+   </div>`:''}
+  </div>`;
+ }).join("");
+}
+function openAdd(){
+ personForm.reset();personId.value="";
+ modalTitle.textContent="નવો વેપારી";
+ addModal.classList.add("show");
+}
+function editPerson(pid){
+ const p=db.people.find(x=>x.id===pid);if(!p)return;
+ personId.value=pid;personName.value=p.name;
+ modalTitle.textContent="વેપારીનું નામ બદલો";
+ addModal.classList.add("show");
+}
+function closeModal(){addModal.classList.remove("show")}
+personForm.addEventListener("submit",e=>{
+ e.preventDefault();
+ const name=personName.value.trim();if(!name)return;
+ const pid=personId.value;
+ if(pid){const p=db.people.find(x=>x.id===pid);if(p)p.name=name}
+ else db.people.push({id:id(),name,archived:false});
+ save();closeModal();render();
+});
+function archivePerson(pid){
+ const p=db.people.find(x=>x.id===pid);
+ if(!p||!confirm(p.name+" ને આર્કાઇવ કરશો? જૂનો હિસાબ સુરક્ષિત રહેશે."))return;
+ p.archived=true;save();render();
+}
+function openQty(pid,type,entry){
+ qtyForm.reset();
+ qtyPerson.value=pid;qtyType.value=type;
+ qtyDate.value=today();qtyNumber.value="";
+ if(entry){
+  qtyTitle.textContent="એન્ટ્રી એડિટ કરો";
+  qtyNumber.value=entry.qty;qtyDate.value=entry.date;
+  qtyNote.value=entry.note||"";
+  qtyEntryId.value=entry.id;
+ }else{
+  qtyTitle.textContent=type==="PLUS"?"PLUS (+) ક્રેટ ઉમેરો":"MINUS (−) ક્રેટ ઘટાડો";
+  qtyEntryId.value="";
+ }
+ qtyModal.classList.add("show");
+}
+let qtyEntryId={value:""};
+function closeQty(){qtyModal.classList.remove("show")}
+function editEntry(eid){
+ const x=db.entries.find(a=>a.id===eid);if(x)openQty(x.person,x.type,x);
+}
+qtyForm.addEventListener("submit",e=>{
+ e.preventDefault();
+ const qty=Number(qtyNumber.value);
+ if(!Number.isSafeInteger(qty)||qty<1){alert("1 કે તેથી વધુ પૂર્ણાંક સંખ્યા લખો.");return}
+ const pid=qtyPerson.value;
+ if(qtyEntryId.value){
+  const x=db.entries.find(a=>a.id===qtyEntryId.value);
+  if(x)Object.assign(x,{qty,type:qtyType.value,date:qtyDate.value,note:qtyNote.value.trim()});
+ }else{
+  db.entries.push({id:id(),person:pid,qty,type:qtyType.value,date:qtyDate.value,note:qtyNote.value.trim(),created:new Date().toISOString()});
+ }
+ save();closeQty();render();
+});
+function deleteEntry(eid){
+ if(!confirm("આ એન્ટ્રી ડિલીટ કરવી છે?"))return;
+ db.entries=db.entries.filter(x=>x.id!==eid);save();render();
+}
+function toggleHistory(pid){openHistory[pid]=!openHistory[pid];render()}
+function backup(){
+ const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;a.download="KH-FRUITS-Backup-"+today()+".json";
+ a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function restore(){
+ const file=backupFile.files[0];if(!file){alert("પહેલા બેકઅપ ફાઇલ પસંદ કરો.");return}
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const x=JSON.parse(reader.result);
+   if(!Array.isArray(x.people)||!Array.isArray(x.entries))throw Error();
+   if(!confirm("હાલનો ડેટા બેકઅપથી બદલાઈ જશે. ચાલુ રાખવું?"))return;
+   db=x;save();render();alert("બેકઅપ રિસ્ટોર થયો.");
+  }catch(e){alert("ખોટી બેકઅપ ફાઇલ.")}
+ };
+ reader.readAsText(file);
+}
+load();render();
+</script>
+</body>
+</html>
