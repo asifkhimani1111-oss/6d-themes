@@ -1,0 +1,541 @@
+
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#087443">
+<title>K.H FRUITS - ક્રેટ ખાતાવહી</title>
+<style>
+:root {
+  --green:#087443;
+  --green2:#0b9658;
+  --light:#e9f7ef;
+  --red:#d93636;
+  --bg:#f3f7f4;
+  --dark:#18352a;
+  --muted:#75857d;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--dark);
+  font-family:Arial,"Noto Sans Gujarati",sans-serif;
+}
+header{
+  background:linear-gradient(135deg,#075b37,#0b9658);
+  color:white;padding:20px 16px 24px;
+  border-radius:0 0 25px 25px;
+}
+.top{display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:23px;font-weight:900;letter-spacing:1px}
+.brand small{display:block;font-size:11px;font-weight:500;opacity:.85;letter-spacing:2px}
+.pill{background:#ffffff24;padding:7px 11px;border-radius:20px;font-size:11px}
+.welcome{margin-top:20px;font-size:13px;opacity:.9}
+.balance-title{font-size:12px;opacity:.85;margin-top:8px}
+.big-balance{font-size:35px;font-weight:900;margin-top:3px}
+main{padding:15px 14px 100px;max-width:700px;margin:auto}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:-2px}
+.stat{
+  background:white;border-radius:16px;padding:13px 9px;
+  box-shadow:0 3px 12px #153b2510;
+}
+.stat span{display:block;color:var(--muted);font-size:11px}
+.stat strong{display:block;font-size:20px;margin-top:7px}
+.stat.in strong{color:var(--green)}
+.stat.out strong{color:var(--red)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:17px 0}
+.action{
+  border:0;border-radius:15px;padding:17px 8px;color:white;
+  font-size:16px;font-weight:800;box-shadow:0 4px 10px #0001;
+}
+.action small{display:block;font-size:11px;font-weight:500;margin-top:5px}
+.inbtn{background:linear-gradient(135deg,#07884b,#13ae68)}
+.outbtn{background:linear-gradient(135deg,#c52e36,#ef5555)}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px}
+.section-head h3{margin:0;font-size:17px}
+button{cursor:pointer;font-family:inherit}
+.addbtn{
+  background:var(--green);color:white;border:0;border-radius:10px;
+  padding:10px 13px;font-weight:700
+}
+.search{
+  width:100%;padding:13px;border:1px solid #e0e9e3;
+  border-radius:12px;background:white;font-size:14px;outline:none
+}
+.trader{
+  background:white;padding:14px;border-radius:15px;margin:10px 0;
+  display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 3px 12px #153b2509;gap:10px
+}
+.trader-name{font-weight:800;font-size:15px}
+.trader-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.trader-bal{font-size:18px;font-weight:900;text-align:right}
+.trader-bal small{display:block;font-size:10px;font-weight:500;color:var(--muted)}
+.positive{color:var(--green)}
+.negative{color:var(--red)}
+.card{
+  background:white;padding:15px;border-radius:16px;margin:12px 0;
+  box-shadow:0 3px 12px #153b2509
+}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--muted);font-size:12px}
+.tabs{
+  position:fixed;bottom:0;left:0;right:0;background:white;
+  display:flex;justify-content:space-around;padding:9px 4px 12px;
+  border-top:1px solid #e6eee8;z-index:5
+}
+.tab{border:0;background:none;color:#84928a;font-size:10px;padding:5px}
+.tab b{display:block;font-size:19px;margin-bottom:3px}
+.tab.active{color:var(--green);font-weight:800}
+.modal{
+  display:none;position:fixed;inset:0;background:#071b10a8;
+  z-index:10;align-items:flex-end;justify-content:center
+}
+.modal.show{display:flex}
+.sheet{
+  background:white;width:100%;max-width:600px;border-radius:23px 23px 0 0;
+  padding:20px 17px 28px;max-height:90vh;overflow:auto
+}
+.sheet h3{margin:0 0 17px}
+label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}
+input,select,textarea{
+  width:100%;padding:13px;border:1px solid #dce8df;border-radius:11px;
+  font-size:14px;background:#fff;outline:none;font-family:inherit
+}
+textarea{min-height:70px;resize:vertical}
+.primary,.secondary,.danger{
+  border:0;border-radius:11px;padding:13px;font-weight:800;font-size:14px
+}
+.primary{background:var(--green);color:white;width:100%;margin-top:16px}
+.secondary{background:#eaf4ed;color:var(--green)}
+.danger{background:#fff0f0;color:var(--red)}
+.close{border:0;background:#edf3ef;border-radius:50%;width:32px;height:32px;font-size:18px}
+.entry{
+  border-bottom:1px solid #edf1ed;padding:13px 0
+}
+.entry:last-child{border:0}
+.entry-actions{display:flex;gap:7px;margin-top:8px}
+.entry-actions button{font-size:11px;padding:7px 10px}
+.empty{text-align:center;color:var(--muted);padding:28px 10px;font-size:13px}
+.hidden{display:none!important}
+.filter{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.smallbtn{border:0;border-radius:8px;padding:8px 10px;font-size:11px}
+@media(min-width:600px){.modal{align-items:center}.sheet{border-radius:20px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div class="brand">K.H FRUITS<small>CRATE ACCOUNT BOOK</small></div>
+    <div class="pill">● OFFLINE</div>
+  </div>
+  <div class="welcome">નમસ્તે! આપનું સ્વાગત છે</div>
+  <div class="balance-title">કુલ ક્રેટ બેલેન્સ</div>
+  <div class="big-balance" id="mainBalance">0</div>
+</header>
+
+<main>
+  <section id="homePage">
+    <div class="stats">
+      <div class="stat in"><span>કુલ IN (+)</span><strong id="totalIn">0</strong></div>
+      <div class="stat out"><span>કુલ OUT (−)</span><strong id="totalOut">0</strong></div>
+      <div class="stat"><span>વેપારીઓ</span><strong id="traderCount">0</strong></div>
+    </div>
+
+    <div class="actions">
+      <button class="action inbtn" onclick="openTransaction('IN')">⬇ IN ક્રેટ
+        <small>ખાલી ક્રેટ મળ્યા</small>
+      </button>
+      <button class="action outbtn" onclick="openTransaction('OUT')">⬆ OUT ક્રેટ
+        <small>ક્રેટ આપ્યા</small>
+      </button>
+    </div>
+
+    <div class="section-head">
+      <h3>વેપારીઓની યાદી</h3>
+      <button class="addbtn" onclick="openTrader()">＋ વેપારી ઉમેરો</button>
+    </div>
+    <input class="search" id="searchTrader" placeholder="વેપારીનું નામ શોધો..." oninput="renderTraders()">
+    <div id="traderList"></div>
+  </section>
+
+  <section id="ledgerPage" class="hidden">
+    <div class="section-head"><h3 id="ledgerTitle">ખાતાવહી</h3>
+      <button class="secondary" onclick="showPage('home')">← પાછા</button>
+    </div>
+    <div class="card">
+      <div class="row"><span class="muted">કુલ IN</span><b class="positive" id="ledgerIn">0</b></div>
+      <div class="row" style="margin-top:10px"><span class="muted">કુલ OUT</span><b class="negative" id="ledgerOut">0</b></div>
+      <hr style="border:0;border-top:1px solid #eee;margin:12px 0">
+      <div class="row"><b>બાકી ક્રેટ</b><strong id="ledgerBalance">0</strong></div>
+    </div>
+    <div class="actions">
+      <button class="action inbtn" onclick="openTransaction('IN',currentTrader)">⬇ IN ક્રેટ</button>
+      <button class="action outbtn" onclick="openTransaction('OUT',currentTrader)">⬆ OUT ક્રેટ</button>
+    </div>
+    <div class="section-head"><h3>જૂની એન્ટ્રીઓ</h3></div>
+    <div id="ledgerEntries"></div>
+  </section>
+
+  <section id="reportPage" class="hidden">
+    <div class="section-head"><h3>રિપોર્ટ</h3></div>
+    <div class="card">
+      <label>શરૂઆતની તારીખ</label>
+      <input type="date" id="fromDate">
+      <label>છેલ્લી તારીખ</label>
+      <input type="date" id="toDate">
+      <button class="primary" onclick="renderReport()">રિપોર્ટ જુઓ</button>
+    </div>
+    <div id="reportResult"></div>
+  </section>
+
+  <section id="settingsPage" class="hidden">
+    <div class="section-head"><h3>સેટિંગ્સ અને બેકઅપ</h3></div>
+    <div class="card">
+      <h3>ડેટા બેકઅપ</h3>
+      <p class="muted">તમારા વેપારીઓ અને ખાતાવહીની JSON ફાઇલ સાચવો.</p>
+      <button class="primary" onclick="backupData()">બેકઅપ ડાઉનલોડ કરો</button>
+      <label>બેકઅપ ફાઇલ પાછી લાવો</label>
+      <input type="file" id="restoreFile" accept=".json,application/json">
+      <button class="primary" onclick="restoreData()">બેકઅપ રિસ્ટોર કરો</button>
+    </div>
+    <div class="card">
+      <h3>આર્કાઇવ વેપારીઓ</h3>
+      <p class="muted">આર્કાઇવ કરેલા વેપારીઓની જૂની ખાતાવહી અહીંથી જોઈ અને ફરી ચાલુ કરી શકો છો.</p>
+      <div id="archivedList"></div>
+    </div>
+    <div class="card">
+      <h3>મહત્વપૂર્ણ સૂચના</h3>
+      <p class="muted">તમારો ડેટા આ મોબાઇલના બ્રાઉઝરમાં જ સાચવાય છે. બ્રાઉઝરનો ડેટા સાફ કરશો અથવા મોબાઇલ બદલશો તો ડેટા ગુમાઈ શકે છે. નિયમિત બેકઅપ રાખો.</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button class="tab active" data-page="home" onclick="showPage('home')"><b>⌂</b>હોમ</button>
+  <button class="tab" data-page="report" onclick="showPage('report')"><b>▤</b>રિપોર્ટ</button>
+  <button class="tab" data-page="settings" onclick="showPage('settings')"><b>⚙</b>સેટિંગ્સ</button>
+</nav>
+
+<div class="modal" id="traderModal">
+ <div class="sheet">
+  <div class="row"><h3 id="traderModalTitle">નવો વેપારી</h3><button class="close" onclick="closeModal('traderModal')">×</button></div>
+  <form id="traderForm">
+   <input type="hidden" id="traderId">
+   <label>વેપારીનું નામ *</label><input id="traderName" required maxlength="80" placeholder="નામ લખો">
+   <label>મોબાઇલ નંબર</label><input id="traderPhone" inputmode="tel" maxlength="15" placeholder="મોબાઇલ નંબર">
+   <label>ગામ / વિસ્તાર</label><input id="traderArea" maxlength="80" placeholder="ગામ અથવા વિસ્તાર">
+   <label>નોંધ</label><textarea id="traderNote" maxlength="300" placeholder="વધારાની માહિતી"></textarea>
+   <button class="primary" type="submit">સેવ કરો</button>
+  </form>
+ </div>
+</div>
+
+<div class="modal" id="transactionModal">
+ <div class="sheet">
+  <div class="row"><h3 id="transactionTitle">ક્રેટ એન્ટ્રી</h3><button class="close" onclick="closeModal('transactionModal')">×</button></div>
+  <form id="transactionForm">
+   <input type="hidden" id="transactionId">
+   <label>વેપારી *</label><select id="transactionTrader" required></select>
+   <label>પ્રકાર</label><select id="transactionType"><option value="IN">IN (+) – ખાલી ક્રેટ મળ્યા</option><option value="OUT">OUT (−) – ક્રેટ આપ્યા</option></select>
+   <label>ક્રેટની સંખ્યા *</label><input type="number" id="transactionQty" min="1" step="1" required inputmode="numeric" placeholder="સંખ્યા લખો">
+   <label>તારીખ *</label><input type="date" id="transactionDate" required>
+   <label>નોંધ</label><textarea id="transactionNote" maxlength="300" placeholder="વધારાની નોંધ"></textarea>
+   <button class="primary" type="submit">એન્ટ્રી સેવ કરો</button>
+  </form>
+ </div>
+</div>
+
+<script>
+const STORE_KEY = "kh_fruits_local_v2";
+
+let db = { traders: [], transactions: [] };
+let currentTrader = null;
+
+function uid(){
+  return "id_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+function today(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(db));
+  }catch(e){
+    alert("ડેટા સેવ થઈ શક્યો નથી. મોબાઇલમાં સ્ટોરેજ ખાલી કરો અને બેકઅપ તપાસો.");
+  }
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed.traders) && Array.isArray(parsed.transactions)){
+        db = parsed;
+      }
+    }
+  }catch(e){
+    alert("જૂનો ડેટા વાંચવામાં સમસ્યા આવી. બેકઅપ ફાઇલ હોય તો રિસ્ટોર કરો.");
+  }
+}
+function activeTraders(){
+  return db.traders.filter(t => !t.archived);
+}
+function traderTransactions(id){
+  return db.transactions.filter(x => x.traderId === id);
+}
+function totals(list){
+  let incoming = 0, outgoing = 0;
+  list.forEach(x => {
+    const q = Number(x.qty) || 0;
+    if(x.type === "IN") incoming += q;
+    else outgoing += q;
+  });
+  return {incoming, outgoing, balance:incoming-outgoing};
+}
+function render(){
+  const all = totals(db.transactions);
+  document.getElementById("mainBalance").textContent = all.balance;
+  document.getElementById("totalIn").textContent = all.incoming;
+  document.getElementById("totalOut").textContent = all.outgoing;
+  document.getElementById("traderCount").textContent = activeTraders().length;
+  renderTraders();
+  renderArchived();
+  if(currentTrader) renderLedger();
+}
+function renderTraders(){
+  const q = (document.getElementById("searchTrader")?.value || "").toLowerCase();
+  const list = activeTraders().filter(t =>
+    (t.name+" "+(t.area||"")).toLowerCase().includes(q)
+  );
+  const box = document.getElementById("traderList");
+  if(!list.length){
+    box.innerHTML = '<div class="empty">હજુ કોઈ વેપારી ઉમેર્યો નથી.<br>＋ વેપારી ઉમેરો બટનથી શરૂઆત કરો.</div>';
+    return;
+  }
+  box.innerHTML = list.map(t => {
+    const sum = totals(traderTransactions(t.id));
+    return `<div class="trader">
+      <div style="flex:1" onclick="openLedger('${t.id}')">
+        <div class="trader-name">${esc(t.name)}</div>
+        <div class="trader-sub">${esc(t.area||"")}${t.phone ? " · "+esc(t.phone):""}</div>
+        <div class="trader-sub">IN ${sum.incoming} · OUT ${sum.outgoing}</div>
+      </div>
+      <div>
+        <div class="trader-bal ${sum.balance>=0?'positive':'negative'}">${sum.balance}</div>
+        <div class="trader-bal"><small>બેલેન્સ</small></div>
+        <button class="smallbtn secondary" onclick="openLedger('${t.id}')">ખાતું જુઓ</button>
+        <button class="smallbtn secondary" onclick="editTrader('${t.id}')">એડિટ</button>
+        <button class="smallbtn danger" onclick="archiveTrader('${t.id}')">આર્કાઇવ</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function openTrader(id){
+  document.getElementById("traderForm").reset();
+  document.getElementById("traderId").value = id || "";
+  document.getElementById("traderModalTitle").textContent = id ? "વેપારી એડિટ કરો" : "નવો વેપારી";
+  if(id){
+    const t = db.traders.find(x=>x.id===id);
+    if(!t) return;
+    traderName.value=t.name; traderPhone.value=t.phone||"";
+    traderArea.value=t.area||""; traderNote.value=t.note||"";
+  }
+  showModal("traderModal");
+}
+function editTrader(id){openTrader(id)}
+document.getElementById("traderForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const id = traderId.value;
+  const data = {
+    name:traderName.value.trim(),
+    phone:traderPhone.value.trim(),
+    area:traderArea.value.trim(),
+    note:traderNote.value.trim()
+  };
+  if(!data.name){alert("વેપારીનું નામ લખો.");return}
+  if(id){
+    const t=db.traders.find(x=>x.id===id);
+    if(t) Object.assign(t,data);
+  }else{
+    db.traders.push({id:uid(),...data,archived:false,createdAt:new Date().toISOString()});
+  }
+  save();closeModal("traderModal");render();
+});
+function archiveTrader(id){
+  const t=db.traders.find(x=>x.id===id);
+  if(!t || !confirm(t.name+" ને આર્કાઇવ કરશો? જૂની ખાતાવહી સુરક્ષિત રહેશે.")) return;
+  t.archived=true;save();render();
+}
+function restoreTrader(id){
+  const t=db.traders.find(x=>x.id===id);
+  if(t){t.archived=false;save();render()}
+}
+function renderArchived(){
+  const list=db.traders.filter(t=>t.archived);
+  const box=document.getElementById("archivedList");
+  box.innerHTML=list.length ? list.map(t=>`
+    <div class="entry row"><b>${esc(t.name)}</b>
+    <button class="smallbtn secondary" onclick="restoreTrader('${t.id}')">ફરી ચાલુ કરો</button></div>
+  `).join("") : '<div class="empty">આર્કાઇવમાં કોઈ વેપારી નથી.</div>';
+}
+function openLedger(id){
+  currentTrader=id;
+  showPage("ledger");
+  renderLedger();
+}
+function renderLedger(){
+  const t=db.traders.find(x=>x.id===currentTrader);
+  if(!t)return;
+  document.getElementById("ledgerTitle").textContent=t.name+" ની ખાતાવહી";
+  const list=traderTransactions(currentTrader).sort((a,b)=>
+    (b.date||"").localeCompare(a.date||"") || (b.createdAt||"").localeCompare(a.createdAt||"")
+  );
+  const sum=totals(list);
+  ledgerIn.textContent=sum.incoming;
+  ledgerOut.textContent=sum.outgoing;
+  ledgerBalance.textContent=sum.balance;
+  const box=document.getElementById("ledgerEntries");
+  if(!list.length){box.innerHTML='<div class="empty">હજુ કોઈ એન્ટ્રી નથી.</div>';return}
+  box.innerHTML=list.map(x=>`
+    <div class="entry">
+      <div class="row">
+        <div><b class="${x.type==='IN'?'positive':'negative'}">${x.type==='IN'?'IN +':'OUT −'} ${Number(x.qty)}</b>
+        <div class="muted">${esc(x.date||"")}</div></div>
+        <b class="${x.type==='IN'?'positive':'negative'}">${x.type==='IN'?'+':'−'}${Number(x.qty)}</b>
+      </div>
+      ${x.note?`<div class="muted" style="margin-top:6px">${esc(x.note)}</div>`:""}
+      <div class="entry-actions">
+        <button class="smallbtn secondary" onclick="editTransaction('${x.id}')">એડિટ</button>
+        <button class="smallbtn danger" onclick="deleteTransaction('${x.id}')">ડિલીટ</button>
+      </div>
+    </div>
+  `).join("");
+}
+function openTransaction(type,id){
+  if(!activeTraders().length){
+    alert("પહેલા વેપારી ઉમેરો.");openTrader();return;
+  }
+  document.getElementById("transactionForm").reset();
+  transactionId.value="";
+  transactionType.value=type;
+  transactionDate.value=today();
+  transactionTitle.textContent=type==="IN"?"IN ક્રેટ એન્ટ્રી":"OUT ક્રેટ એન્ટ્રી";
+  transactionTrader.innerHTML=activeTraders().map(t=>
+    `<option value="${t.id}">${esc(t.name)}</option>`
+  ).join("");
+  if(id) transactionTrader.value=id;
+  showModal("transactionModal");
+}
+function editTransaction(id){
+  const x=db.transactions.find(t=>t.id===id);
+  if(!x)return;
+  transactionId.value=x.id;
+  transactionTrader.innerHTML=db.traders.filter(t=>!t.archived || t.id===x.traderId).map(t=>
+    `<option value="${t.id}">${esc(t.name)}</option>`
+  ).join("");
+  transactionTrader.value=x.traderId;
+  transactionType.value=x.type;
+  transactionQty.value=x.qty;
+  transactionDate.value=x.date;
+  transactionNote.value=x.note||"";
+  transactionTitle.textContent="એન્ટ્રી એડિટ કરો";
+  showModal("transactionModal");
+}
+document.getElementById("transactionForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const qty=Number(transactionQty.value);
+  if(!Number.isSafeInteger(qty)||qty<1){alert("ક્રેટની સંખ્યા 1 કે તેથી વધુ પૂર્ણાંક હોવી જોઈએ.");return}
+  const id=transactionId.value;
+  const data={
+    traderId:transactionTrader.value,
+    type:transactionType.value,
+    qty,
+    date:transactionDate.value,
+    note:transactionNote.value.trim()
+  };
+  if(!data.date){alert("તારીખ પસંદ કરો.");return}
+  if(id){
+    const x=db.transactions.find(t=>t.id===id);
+    if(x)Object.assign(x,data);
+  }else{
+    db.transactions.push({id:uid(),...data,createdAt:new Date().toISOString()});
+  }
+  save();closeModal("transactionModal");render();
+  if(currentTrader)renderLedger();
+});
+function deleteTransaction(id){
+  if(!confirm("આ એન્ટ્રી કાયમ માટે ડિલીટ કરવી છે?"))return;
+  db.transactions=db.transactions.filter(x=>x.id!==id);
+  save();render();renderLedger();
+}
+function renderReport(){
+  const from=fromDate.value,to=toDate.value;
+  if(from&&to&&from>to){alert("શરૂઆતની તારીખ છેલ્લી તારીખ કરતાં મોટી ન હોવી જોઈએ.");return}
+  const list=db.transactions.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to));
+  const sum=totals(list);
+  const byTrader=db.traders.map(t=>{
+    const s=totals(list.filter(x=>x.traderId===t.id));
+    return {...t,...s};
+  }).filter(t=>t.incoming||t.outgoing);
+  reportResult.innerHTML=`
+    <div class="card">
+      <div class="row"><span>કુલ IN</span><b class="positive">${sum.incoming}</b></div>
+      <div class="row" style="margin-top:10px"><span>કુલ OUT</span><b class="negative">${sum.outgoing}</b></div>
+      <hr style="border:0;border-top:1px solid #eee;margin:12px 0">
+      <div class="row"><b>નેટ બેલેન્સ</b><b>${sum.balance}</b></div>
+    </div>
+    <h3>વેપારી પ્રમાણે</h3>
+    ${byTrader.length?byTrader.map(t=>`
+      <div class="trader"><div><b>${esc(t.name)}</b>
+      <div class="trader-sub">IN ${t.incoming} · OUT ${t.outgoing}</div></div>
+      <b class="${t.balance>=0?'positive':'negative'}">${t.balance}</b></div>
+    `).join(""):'<div class="empty">આ તારીખમાં કોઈ એન્ટ્રી નથી.</div>'}
+  `;
+}
+function backupData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="KH-FRUITS-Backup-"+today()+".json";
+  a.click();URL.revokeObjectURL(url);
+}
+function restoreData(){
+  const file=restoreFile.files[0];
+  if(!file){alert("પહેલા બેકઅપ JSON ફાઇલ પસંદ કરો.");return}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!Array.isArray(data.traders)||!Array.isArray(data.transactions))throw new Error();
+      if(!confirm("હાલનો ડેટા બદલાઈને બેકઅપનો ડેટા આવશે. આગળ વધવું છે?"))return;
+      db=data;save();render();alert("બેકઅપ સફળતાથી રિસ્ટોર થયો.");
+    }catch(e){alert("આ યોગ્ય K.H FRUITS બેકઅપ ફાઇલ નથી.")}
+  };
+  reader.readAsText(file);
+}
+function showModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+function showPage(page){
+  ["home","ledger","report","settings"].forEach(p=>
+    document.getElementById(p+"Page").classList.toggle("hidden",p!==page)
+  );
+  document.querySelectorAll(".tab").forEach(b=>
+    b.classList.toggle("active",b.dataset.page===page)
+  );
+  if(page==="settings")renderArchived();
+  if(page==="report")renderReport();
+}
+load();
+render();
+</script>
+</body>
+</html>
