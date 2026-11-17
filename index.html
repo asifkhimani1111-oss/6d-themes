@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087443">
+<title>K.H FRUITS - વેપારી ખાતું</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f5f2;color:#183328}
+header{background:#087443;color:white;padding:17px;text-align:center}
+header h2{margin:0 0 5px}
+main{max-width:750px;margin:auto;padding:14px}
+.card{background:white;padding:15px;border-radius:13px;margin-bottom:13px;box-shadow:0 2px 9px #00000012}
+h3{margin:0 0 12px;color:#087443}
+input,button{font:inherit;padding:11px;border-radius:8px}
+input{width:100%;border:1px solid #ccd8d0;margin:5px 0 10px}
+button{border:0;background:#087443;color:white;cursor:pointer;margin:3px}
+button.red{background:#c62828}
+button.gray{background:#607d8b}
+button.orange{background:#ef8c00}
+.person{border:1px solid #dce7df;border-radius:10px;padding:12px;margin:9px 0}
+.person h3{margin:0 0 8px}
+.crate{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #eee;padding:10px 0;flex-wrap:wrap}
+.crate strong{flex:1;min-width:100px}
+.qty{font-size:19px;font-weight:bold;color:#087443}
+.small{font-size:12px;color:#64756b}
+.hidden{display:none}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+<h2>K.H FRUITS</h2>
+<div>વેપારી ક્રેટ ખાતાવહી</div>
+</header>
+<main>
+
+<section class="card">
+<h3>નવો વેપારી ઉમેરો</h3>
+<input id="traderName" placeholder="વેપારીનું નામ">
+<button onclick="addTrader()">+ વેપારી ઉમેરો</button>
+</section>
+
+<section class="card">
+<h3>વેપારીઓની યાદી</h3>
+<div id="traderList"></div>
+</section>
+
+<section class="card">
+<h3>બેકઅપ અને રિસ્ટોર</h3>
+<button onclick="backup()">બેકઅપ ડાઉનલોડ</button>
+<input type="file" id="restoreFile" accept=".json">
+<button class="gray" onclick="restore()">બેકઅપ રિસ્ટોર</button>
+<p class="small">ડેટા આ મોબાઇલના બ્રાઉઝરમાં જ સંગ્રહિત થાય છે. સમયાંતરે બેકઅપ રાખો.</p>
+</section>
+
+<section class="card">
+<h3>વેપારીનો હિસાબ</h3>
+<div id="ledger"></div>
+</section>
+
+</main>
+
+<script>
+const STORE_KEY="kh_fruits_local_v2";
+
+function emptyData(){
+ return {traders:[],transactions:[]};
+}
+
+function loadData(){
+ try{
+  const raw=localStorage.getItem(STORE_KEY);
+  if(!raw)return emptyData();
+  const d=JSON.parse(raw);
+  if(!Array.isArray(d.traders)||!Array.isArray(d.transactions))
+   return emptyData();
+  return d;
+ }catch(e){
+  alert("જૂનો ડેટા વાંચવામાં મુશ્કેલી છે. બેકઅપ લીધા વગર ડેટા બદલશો નહીં.");
+  return emptyData();
+ }
+}
+
+let data=loadData();
+let selectedTrader=null;
+
+function save(){
+ localStorage.setItem(STORE_KEY,JSON.stringify(data));
+ render();
+}
+
+function id(){
+ return Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+}
+
+function addTrader(){
+ const name=document.getElementById("traderName").value.trim();
+ if(!name)return alert("વેપારીનું નામ લખો.");
+ data.traders.push({id:id(),name:name,crateTypes:[],archived:false});
+ document.getElementById("traderName").value="";
+ save();
+}
+
+function addCrate(traderId){
+ const name=prompt("ક્રેટનું નામ લખો:");
+ if(!name||!name.trim())return;
+ const t=data.traders.find(x=>x.id===traderId);
+ if(!t)return;
+ t.crateTypes=t.crateTypes||[];
+ if(t.crateTypes.some(x=>x.toLowerCase()===name.trim().toLowerCase()))
+  return alert("આ ક્રેટનું નામ પહેલેથી છે.");
+ t.crateTypes.push(name.trim());
+ save();
+}
+
+function changeQty(traderId,crateName,direction){
+ const t=data.traders.find(x=>x.id===traderId);
+ if(!t)return;
+ const qty=Number(prompt("કેટલા ક્રેટનો હિસાબ કરવો છે?", "1"));
+ if(!Number.isFinite(qty)||qty<=0)return;
+ data.transactions.push({
+  id:id(),traderId:traderId,crateName:crateName,
+  type:direction,qty:qty,date:new Date().toISOString()
+ });
+ save();
+}
+
+function balance(traderId,crateName){
+ return data.transactions
+ .filter(x=>x.traderId===traderId&&x.crateName===crateName)
+ .reduce((sum,x)=>sum+(x.type==="IN"?Number(x.qty):-Number(x.qty)),0);
+}
+
+function renameTrader(traderId){
+ const t=data.traders.find(x=>x.id===traderId);
+ if(!t)return;
+ const name=prompt("નવું નામ લખો:",t.name);
+ if(name&&name.trim()){t.name=name.trim();save();}
+}
+
+function archiveTrader(traderId){
+ const t=data.traders.find(x=>x.id===traderId);
+ if(!t)return;
+ if(!confirm("આ વેપારીને આર્કાઇવ કરવો છે? તેનો હિસાબ ડિલીટ નહીં થાય."))return;
+ t.archived=!t.archived;
+ save();
+}
+
+function showLedger(traderId){
+ selectedTrader=traderId;
+ const t=data.traders.find(x=>x.id===traderId);
+ if(!t)return;
+ const rows=data.transactions
+ .filter(x=>x.traderId===traderId)
+ .sort((a,b)=>new Date(b.date)-new Date(a.date));
+ document.getElementById("ledger").innerHTML=
+ "<h3>"+escapeHtml(t.name)+"</h3>"+
+ (rows.length?rows.map(x=>
+  `<div class="crate">
+  <strong>${escapeHtml(x.crateName||"જૂનો ક્રેટ")}</strong>
+  <span>${x.type==="IN"?"જમા +":"ઉધાર −"} ${x.qty}</span>
+  <span class="small">${new Date(x.date).toLocaleString("gu-IN")}</span>
+  </div>`).join(""):"હજુ કોઈ વ્યવહાર નથી.");
+}
+
+function escapeHtml(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function render(){
+ const list=document.getElementById("traderList");
+ const traders=data.traders||[];
+ if(!traders.length){
+  list.innerHTML="હજુ કોઈ વેપારી ઉમેર્યો નથી.";
+ }else{
+  list.innerHTML=traders.map(t=>{
+   t.crateTypes=t.crateTypes||[];
+
+   // જૂના વ્યવહારોને અલગ જૂના ક્રેટ તરીકે જાળવો.
+   const old=data.transactions.some(x=>
+    x.traderId===t.id&&!x.crateName);
+   if(old&&!t.crateTypes.includes("જૂનો ક્રેટ"))
+    t.crateTypes.push("જૂનો ક્રેટ");
+
+   return `<div class="person">
+    <h3>${escapeHtml(t.name)}</h3>
+    <div class="actions">
+     <button onclick="addCrate('${t.id}')">+ ક્રેટનું નામ</button>
+     <button class="gray" onclick="renameTrader('${t.id}')">નામ બદલો</button>
+     <button class="orange" onclick="archiveTrader('${t.id}')">${t.archived?"ફરી ચાલુ કરો":"આર્કાઇવ"}</button>
+     <button class="gray" onclick="showLedger('${t.id}')">હિસાબ જુઓ</button>
+    </div>
+    ${t.archived?'<p class="small">આર્કાઇવ થયેલ વેપારી</p>':
+     (t.crateTypes.length?t.crateTypes.map(c=>{
+      const q=balance(t.id,c);
+      return `<div class="crate">
+       <strong>${escapeHtml(c)}</strong>
+       <span class="qty">${q}</span>
+       <button onclick="changeQty('${t.id}',${JSON.stringify(c)},'IN')">+ જમા</button>
+       <button class="red" onclick="changeQty('${t.id}',${JSON.stringify(c)},'OUT')">− ઉધાર</button>
+      </div>`;
+     }).join(""):'<p class="small">હજુ ક્રેટ ઉમેર્યા નથી.</p>')}
+   </div>`;
+  }).join("");
+ }
+ if(selectedTrader)showLedger(selectedTrader);
+}
+
+function backup(){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="KH-Fruits-Vyapari-Backup.json";
+ a.click();
+ URL.revokeObjectURL(a.href);
+}
+
+function restore(){
+ const file=document.getElementById("restoreFile").files[0];
+ if(!file)return alert("પહેલા બેકઅપ ફાઇલ પસંદ કરો.");
+ if(!confirm("હાલનો ડેટા બદલાઈ શકે છે. પહેલાં બેકઅપ રાખ્યો છે?"))return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const d=JSON.parse(reader.result);
+   if(!Array.isArray(d.traders)||!Array.isArray(d.transactions))
+    throw new Error();
+   data=d;
+   save();
+   alert("બેકઅપ રિસ્ટોર થયો.");
+  }catch(e){alert("બેકઅપ ફાઇલ યોગ્ય નથી.");}
+ };
+ reader.readAsText(file);
+}
+
+render();
+</script>
+</body>
+</html>
